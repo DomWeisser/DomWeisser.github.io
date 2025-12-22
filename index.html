@@ -40,39 +40,34 @@
         .sidebar-project-title { font-weight: bold; display: block; }
         .sidebar-project-loc { font-size: 0.8rem; color: #888; }
 
-        a.btn { display: inline-block; background: var(--accent-color); color: #000; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-size: 0.9rem; font-weight: bold; margin-top: 10px; }
+        a.btn { display: inline-block; background: var(--accent-color); color: #000; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-size: 0.9rem; font-weight: bold; margin-top: 10px; margin-right: 10px;}
+        
+        /* Secondary Button Style (for GitHub) */
+        a.btn-outline { background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); }
+        a.btn-outline:hover { background: rgba(0, 255, 204, 0.1); }
 
         /* MODAL */
         .modal-overlay { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(5px); }
         .modal-content { background-color: #151922; margin: 10% auto; padding: 40px; border: 1px solid var(--accent-color); width: 80%; max-width: 600px; border-radius: 8px; position: relative; }
         .close-modal-btn { position: absolute; top: 15px; right: 20px; color: #fff; font-size: 30px; cursor: pointer; }
         
-        /* NEW: STYLE FOR THE 2D DOTS */
+        /* 2D DOTS STYLE */
         .project-dot {
-            width: 14px;
-            height: 14px;
-            background-color: var(--accent-color);
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 0 10px var(--accent-color); /* Glow effect */
-            transition: transform 0.2s;
+            width: 14px; height: 14px; background-color: var(--accent-color); border-radius: 50%; cursor: pointer;
+            box-shadow: 0 0 10px var(--accent-color); transition: transform 0.2s;
         }
-        .project-dot:hover {
-            transform: scale(1.5);
-            background-color: #fff;
-        }
+        .project-dot:hover { transform: scale(1.5); background-color: #fff; }
     </style>
 </head>
 <body>
 
     <div id="globeViz"></div>
-
     <button class="menu-btn" onclick="toggleSidebar()">☰</button>
 
     <div class="header-overlay">
         <h1>Dominic Weisser</h1>
         <div class="subtitle">MSc AI for Sustainable Development - UCL</div>
-        <div class="subtitle">BSc Maths, Opeartional Research, Stats & Economics (MORSE) - Uni of Warwick</div>
+        <div class="uni-info">BSc Maths, Operational Research, Stats & Economics (MORSE) - Uni of Warwick</div>
     </div>
 
     <div class="sidebar" id="mySidebar">
@@ -91,20 +86,42 @@
         <div class="modal-content">
             <span class="close-modal-btn" onclick="closeModal()">&times;</span>
             <h2 id="modalTitle" style="margin-top:0; color: var(--accent-color);">Title</h2>
-            <div id="modalBody" style="line-height: 1.6;">Desc</div>
-        </div>
+            <div id="modalBody" style="line-height: 1.6; color: #ddd;">Desc</div>
+            <div id="modalLinks" style="margin-top: 20px;"></div> </div>
     </div>
 
     <script>
-        // --- DATA ---
+        // --- 1. EDIT YOUR CONTENT HERE ---
         const myProjects = [
-            { lat: -1.2921, lng: 36.8219, name: "Kenya", fullName: "Kenya: Agricultural Mapping", desc: "Mapping smallholder farms using Sentinel-2.", url: "#" },
-            { lat: 51.5074, lng: -0.1278, name: "UK", fullName: "UK: Urban Heat Islands", desc: "Analyzing LST in London.", url: "#" },
-            { lat: 41.9028, lng: 12.4964, name: "Italy", fullName: "Italy: Heritage Monitoring", desc: "InSAR for heritage sites.", url: "#" },
-            { lat: -15.8267, lng: -47.9218, name: "Brazil", fullName: "Brazil: Deforestation", desc: "Amazon forest loss detection.", url: "#" },
-            { lat: 42.6977, lng: 23.3219, name: "Bulgaria", fullName: "Bulgaria: Forest Cover", desc: "Landsat change detection.", url: "#" },
-            { lat: 48.2082, lng: 16.3738, name: "Austria", fullName: "Austria: Alpine Snow", desc: "MODIS snow line tracking.", url: "#" },
-            { lat: 78.2232, lng: 15.6267, name: "Arctic", fullName: "Arctic: Sea Ice", desc: "CryoSat-2 altimetry.", url: "#" }
+            { 
+                lat: -1.2921, lng: 36.8219, 
+                name: "Kenya", 
+                fullName: "Kenya: Agricultural Mapping", 
+                // You can use HTML tags like <br> for new lines, <b> for bold
+                desc: "Mapping smallholder farms using Sentinel-2 to estimate crop yields. <br><br><b>Methodology:</b> Used Random Forest classifiers on multi-temporal spectral indices.", 
+                pdf: "kenya_report.pdf",       // Upload this file to GitHub
+                github: null
+            },
+            { 
+                lat: 51.5074, lng: -0.1278, 
+                name: "UK", 
+                fullName: "Europe: Transfer Learning for Offshore Wind Power Forecasting", 
+                desc: "....", 
+                pdf: "Full Final Report.pdf",        // If you don't have one, just delete this line
+                github: null                   // Or set to null
+            },
+            { 
+                lat: 41.9028, lng: 12.4964, 
+                name: "Italy", 
+                fullName: "Italy: Heritage Monitoring", 
+                desc: "Using InSAR to detect ground deformation risks near ancient Roman heritage sites.", 
+                pdf: null,
+                github: "https://github.com/yourusername/insar-rome"
+            },
+            { lat: -15.8267, lng: -47.9218, name: "Brazil", fullName: "Brazil: Deforestation", desc: "Amazon forest loss detection.", pdf: null, github: null },
+            { lat: 42.6977, lng: 23.3219, name: "Bulgaria", fullName: "Bulgaria: Forest Cover", desc: "Landsat change detection.", pdf: null, github: null },
+            { lat: 48.2082, lng: 16.3738, name: "Austria", fullName: "Austria: Alpine Snow", desc: "MODIS snow line tracking.", pdf: null, github: null },
+            { lat: 78.2232, lng: 15.6267, name: "Arctic", fullName: "Arctic: Sea Ice", desc: "CryoSat-2 altimetry.", pdf: null, github: null }
         ];
 
         // --- UI FUNCTIONS ---
@@ -112,12 +129,34 @@
         const modal = document.getElementById("projectModal");
 
         function openModal(data) {
+            // 1. Set Title & Text
             document.getElementById("modalTitle").innerText = data.fullName;
-            let content = data.desc;
-            if (data.url && data.url !== "#") {
-                content += `<br><br><a href="${data.url}" target="_blank" class="btn">Read Full Report &rarr;</a>`;
+            document.getElementById("modalBody").innerHTML = data.desc;
+            
+            // 2. Clear previous buttons
+            const linkContainer = document.getElementById("modalLinks");
+            linkContainer.innerHTML = ""; 
+
+            // 3. Add PDF Button (if exists)
+            if (data.pdf) {
+                const pdfBtn = document.createElement("a");
+                pdfBtn.className = "btn";
+                pdfBtn.href = data.pdf;
+                pdfBtn.target = "_blank";
+                pdfBtn.innerHTML = "📄 Read Analysis (PDF)";
+                linkContainer.appendChild(pdfBtn);
             }
-            document.getElementById("modalBody").innerHTML = content;
+
+            // 4. Add GitHub Button (if exists)
+            if (data.github) {
+                const gitBtn = document.createElement("a");
+                gitBtn.className = "btn btn-outline"; // Different style
+                gitBtn.href = data.github;
+                gitBtn.target = "_blank";
+                gitBtn.innerHTML = "💻 View Code (GitHub)";
+                linkContainer.appendChild(gitBtn);
+            }
+
             modal.style.display = "block";
         }
 
@@ -136,42 +175,36 @@
         });
 
         // --- GLOBE INITIALIZATION ---
-        // 1. Create Globe
         const world = Globe()(document.getElementById('globeViz'))
             .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
             .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
             
-            // 2. ADD 2D DOTS (HTML MARKERS)
+            // 2D DOTS
             .htmlElementsData(myProjects)
             .htmlLat('lat')
             .htmlLng('lng')
             .htmlElement(d => {
-                // Create a 2D Div element for each country
                 const el = document.createElement('div');
-                el.className = 'project-dot'; // Uses CSS style defined above
+                el.className = 'project-dot'; 
                 el.onclick = () => openModal(d);
                 return el;
             })
             
-            // 3. ADD TEXT LABELS (Offset slightly so they don't cover the dot)
+            // LABELS
             .labelsData(myProjects)
             .labelLat('lat')
             .labelLng('lng')
             .labelText('name')
             .labelSize(1.5)
-            .labelDotRadius(0) // No dot from the label itself
+            .labelDotRadius(0) 
             .labelColor(() => 'rgba(255, 255, 255, 0.85)')
-            .labelAltitude(0.05) // Slightly floating
+            .labelAltitude(0.05) 
             .onLabelClick(openModal);
 
-        // 4. START ROTATION
-        // Wrapped in try/catch for safety
         try {
-            world.controls().autoRotate = true;
+            world.controls().autoRotate = false;
             world.controls().autoRotateSpeed = 0.5;
-        } catch (err) {
-            console.log("Rotation error ignored for stability.");
-        }
+        } catch (err) { console.log("Rotation error ignored."); }
     </script>
 </body>
 </html>
