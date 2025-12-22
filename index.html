@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Name | Earth Observation AI</title>
+    <style>
+        /* --- EARTH OBSERVATION THEME STYLES --- */
+        :root {
+            --bg-color: #0b0d17; /* Deep Space */
+            --text-color: #e0e6ed; /* Star White */
+            --accent-color: #00ffcc; /* Satellite Data Cyan */
+            --card-bg: #15192b; /* Slightly lighter dark for cards */
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* Container to keep things centered */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Section */
+        header {
+            text-align: center;
+            padding: 60px 0;
+            border-bottom: 1px solid #333;
+        }
+        
+        h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        .subtitle { color: var(--accent-color); font-size: 1.2rem; font-weight: bold; }
+
+        /* Sections */
+        section { padding: 40px 0; }
+        h2 { border-left: 4px solid var(--accent-color); padding-left: 15px; margin-bottom: 20px; }
+
+        /* Project Cards */
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .project-card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+        .project-card:hover { border-color: var(--accent-color); }
+        
+        /* Links and Buttons */
+        a { color: var(--accent-color); text-decoration: none; }
+        .btn {
+            display: inline-block;
+            background: var(--accent-color);
+            color: #000;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <header>
+            <h1>Your Name Here</h1>
+            <p class="subtitle">AI Researcher // Earth Observation</p>
+            <p>Applying deep learning to monitor our changing planet.</p>
+        </header>
+
+        <section id="about">
+            <h2>About Me</h2>
+            <p>
+                I am a researcher specializing in Computer Vision and Remote Sensing. 
+                My work focuses on analyzing satellite imagery (Sentinel-2, Landsat) 
+                to solve environmental challenges.
+            </p>
+        </section>
+
+        <section id="research">
+            <h2>Research & Projects</h2>
+            <div class="project-grid">
+                
+                <div class="project-card">
+                    <h3>Deforestation Detection</h3>
+                    <p>Using U-Net and PyTorch to segment illegal logging activities in the Amazon rainforest.</p>
+                    <a href="#">View Code &rarr;</a>
+                </div>
+
+                <div class="project-card">
+                    <h3>Crop Yield Estimation</h3>
+                    <p>Time-series analysis of NDVI data to predict wheat yields using LSTM networks.</p>
+                    <a href="#">View Code &rarr;</a>
+                </div>
+
+            </div>
+        </section>
+
+        <section id="cv">
+            <h2>Curriculum Vitae</h2>
+            <p>Download my full resume to see my publication history and technical skills.</p>
+            <a href="cv.pdf" class="btn" target="_blank">Download CV (PDF)</a>
+        </section>
+
+        <footer style="text-align: center; padding-top: 40px; font-size: 0.8rem; color: #666;">
+            <p>&copy; 2025 Your Name. Built with HTML & CSS.</p>
+        </footer>
+
+    </div>
+
+</body>
+</html>
