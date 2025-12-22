@@ -1,47 +1,160 @@
-<script>
-        // --- 1. SIDEBAR LOGIC ---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dominic Weisser | Earth Observation AI</title>
+    
+    <script src="//unpkg.com/globe.gl"></script>
+
+    <style>
+        /* --- CSS STYLES --- */
+        :root {
+            --sidebar-width: 300px;
+            --bg-color: #000000;
+            --text-color: #e0e6ed;
+            --accent-color: #00ffcc; /* Cyan */
+            --glass-bg: rgba(20, 25, 40, 0.85);
+        }
+
+        body {
+            margin: 0; padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color); color: var(--text-color);
+            overflow: hidden;
+        }
+
+        #globeViz {
+            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1;
+        }
+
+        /* SIDEBAR */
+        .sidebar {
+            position: fixed; left: 0; top: 0; width: var(--sidebar-width); height: 100%;
+            background: var(--glass-bg); backdrop-filter: blur(10px);
+            border-right: 1px solid #333; z-index: 10;
+            transform: translateX(-100%); transition: transform 0.3s ease-in-out;
+            overflow-y: auto; padding: 20px; box-sizing: border-box;
+        }
+        .sidebar.open { transform: translateX(0); }
+
+        /* BUTTONS */
+        .menu-btn {
+            position: fixed; top: 20px; left: 20px; z-index: 20;
+            background: var(--accent-color); color: #000; border: none;
+            padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 1.2rem;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+        }
+        .menu-btn:hover { background: #fff; }
+
+        a.btn {
+            display: inline-block; background: var(--accent-color); color: #000;
+            padding: 8px 16px; text-decoration: none; border-radius: 4px;
+            font-size: 0.9rem; font-weight: bold; margin-top: 5px;
+        }
+
+        /* TEXT ON SCREEN */
+        .hero-text {
+            position: absolute; top: 85%; left: 50%; transform: translate(-50%, -50%);
+            text-align: center; z-index: 5; pointer-events: none;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
+        }
+        h1 { margin-top: 0; font-size: 1.8rem; }
+        h2 { border-left: 3px solid var(--accent-color); padding-left: 10px; margin-top: 30px;}
+        p { font-size: 0.95rem; line-height: 1.6; color: #ccc; }
+
+        /* POPUP MODAL STYLES */
+        .modal-overlay {
+            display: none; position: fixed; z-index: 100; left: 0; top: 0;
+            width: 100%; height: 100%; overflow: auto;
+            background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background-color: #1a1d29; margin: 10% auto; padding: 30px;
+            border: 2px solid var(--accent-color); width: 80%; max-width: 600px;
+            border-radius: 10px; position: relative;
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.2);
+        }
+        .close-modal-btn {
+            color: #aaa; position: absolute; top: 10px; right: 20px;
+            font-size: 28px; font-weight: bold; cursor: pointer;
+        }
+        .close-modal-btn:hover { color: var(--accent-color); }
+    </style>
+</head>
+<body>
+
+    <div id="globeViz"></div>
+    <button class="menu-btn" onclick="toggleSidebar()">☰ Menu</button>
+
+    <div class="hero-text" id="heroMsg">
+        <h1 style="font-size: 2rem; margin:0;">Dominic Weisser</h1>
+        <p style="color: var(--accent-color); font-size: 1.1rem;">MSc AI for Sustainable Development - UCL</p>
+        <p style="color: var(--accent-color); font-size: 1.1rem;">BSc Maths, Operational Research, Statitistics and Economics (MORSE) - University of Warwick    
+        <p style="font-size: 0.8rem; opacity: 0.8;">(Rotate globe and click points to view projects)</p>
+    </div>
+
+    <div id="projectModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-modal-btn" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle" style="margin-top:0; color: var(--accent-color);">Project Title</h2>
+            <div id="modalBody">Project description goes here...</div>
+        </div>
+    </div>
+
+    <div class="sidebar" id="mySidebar">
+        <h1>Your Name</h1>
+        <p>Research Engineer specializing in Remote Sensing & Deep Learning.</p>
+        <hr style="border-color: #333;">
+        <div id="about">
+            <h2>About Me</h2>
+            <p>I build AI models that monitor planetary changes.</p>
+        </div>
+        <div id="contact">
+            <h2>Contact / CV</h2>
+            <a href="cv.pdf" class="btn" style="width: 100%; text-align: center; box-sizing: border-box;">Download CV</a>
+        </div>
+    </div>
+
+    <script>
+        // --- SIDEBAR ---
         function toggleSidebar() {
             const sidebar = document.getElementById('mySidebar');
             sidebar.classList.toggle('open');
         }
 
-        // --- 2. MODAL POPUP LOGIC ---
+        // --- MODAL ---
         const modal = document.getElementById("projectModal");
         const modalTitle = document.getElementById("modalTitle");
         const modalBody = document.getElementById("modalBody");
 
-        // Function to open modal and fill data
         function openModal(data) {
-            modalTitle.innerText = data.name; // Set title
-            
-            // Create the HTML for the description + A button to the report
+            modalTitle.innerText = data.name; 
             let content = data.desc;
             if (data.url) {
                 content += `<br><br><a href="${data.url}" target="_blank" class="btn">Read Full Report &rarr;</a>`;
             }
-            
             modalBody.innerHTML = content; 
             modal.style.display = "block"; 
-            world.autoRotate(false); // Pause rotation
+            world.autoRotate(false); 
         }
 
         function closeModal() {
             modal.style.display = "none";
-            world.autoRotate(true); // Resume rotation
+            world.autoRotate(true); 
         }
         
         window.onclick = function(event) {
             if (event.target == modal) { closeModal(); }
         }
 
-        // --- 3. YOUR PROJECT DATA ---
-        // I added the 'url' field. You can put links to PDFs or other pages there.
+        // --- DATA ---
         const myProjects = [
             {
                 lat: -1.2921, lng: 36.8219,
                 name: "Kenya: Agricultural Mapping",
                 desc: "Mapping smallholder farms using Sentinel-2 to estimate crop yields.",
-                url: "project-kenya.html" // Change this to your actual link/PDF
+                url: "#" 
             },
             {
                 lat: 51.5074, lng: -0.1278,
@@ -74,14 +187,14 @@
                 url: "#"
             },
             {
-                lat: 78.2232, lng: 15.6267, // Longyearbyen coordinates
+                lat: 78.2232, lng: 15.6267, 
                 name: "The Arctic: Sea Ice Thickness",
                 desc: "CryoSat-2 altimetry processing to measure ice volume changes.",
                 url: "#"
             }
         ];
 
-        // --- 4. GLOBE CONFIGURATION ---
+        // --- GLOBE ---
         const world = Globe()
             (document.getElementById('globeViz'))
             .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
@@ -91,18 +204,17 @@
             .atmosphereAltitude(0.25)
             .autoRotate(true)
             .autoRotateSpeed(0.5)
-            
-            // --- FIX START: FORCE DOT RENDERING ---
+            // Fix for dots:
             .pointsData(myProjects) 
-            .pointLat('lat')  // Explicitly tell it where latitude is
-            .pointLng('lng')  // Explicitly tell it where longitude is
+            .pointLat('lat') 
+            .pointLng('lng') 
             .pointColor(() => '#00ffcc') 
-            .pointAltitude(0.05) // Lifted them higher so they don't clip into mountains
-            .pointRadius(0.8)    // Made them bigger so they are easier to click
+            .pointAltitude(0.05) 
+            .pointRadius(0.8) 
             .pointResolution(32) 
-            // --- FIX END ---
-            
             .onPointClick(pointData => {
                 openModal(pointData);
             });
     </script>
+</body>
+</html>
