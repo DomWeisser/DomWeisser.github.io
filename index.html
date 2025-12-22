@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dominic Weisser | Earth Observation AI</title>
+    <title>Your Name | Earth Observation AI</title>
     
-    <script src="//unpkg.com/globe.gl"></script>
+    <script src="https://unpkg.com/globe.gl"></script>
 
     <style>
         /* --- CSS STYLES --- */
@@ -14,7 +14,7 @@
             --bg-color: #000000;
             --text-color: #e0e6ed;
             --accent-color: #00ffcc; /* Cyan */
-            --glass-bg: rgba(20, 25, 40, 0.85);
+            --glass-bg: rgba(20, 25, 40, 0.95);
         }
 
         body {
@@ -38,7 +38,7 @@
         }
         .sidebar.open { transform: translateX(0); }
 
-        /* BUTTONS */
+        /* BUTTONS & LINKS */
         .menu-btn {
             position: fixed; top: 20px; left: 20px; z-index: 20;
             background: var(--accent-color); color: #000; border: none;
@@ -52,8 +52,15 @@
             padding: 8px 16px; text-decoration: none; border-radius: 4px;
             font-size: 0.9rem; font-weight: bold; margin-top: 5px;
         }
+        
+        /* Sidebar Project Links */
+        .sidebar-project-link {
+            cursor: pointer; padding: 10px; border-bottom: 1px solid #333;
+            transition: background 0.2s;
+        }
+        .sidebar-project-link:hover { background: rgba(255,255,255,0.1); color: var(--accent-color); }
 
-        /* TEXT ON SCREEN */
+        /* HERO TEXT */
         .hero-text {
             position: absolute; top: 85%; left: 50%; transform: translate(-50%, -50%);
             text-align: center; z-index: 5; pointer-events: none;
@@ -63,7 +70,7 @@
         h2 { border-left: 3px solid var(--accent-color); padding-left: 10px; margin-top: 30px;}
         p { font-size: 0.95rem; line-height: 1.6; color: #ccc; }
 
-        /* POPUP MODAL STYLES */
+        /* POPUP MODAL */
         .modal-overlay {
             display: none; position: fixed; z-index: 100; left: 0; top: 0;
             width: 100%; height: 100%; overflow: auto;
@@ -90,8 +97,8 @@
     <div class="hero-text" id="heroMsg">
         <h1 style="font-size: 2rem; margin:0;">Dominic Weisser</h1>
         <p style="color: var(--accent-color); font-size: 1.1rem;">MSc AI for Sustainable Development - UCL</p>
-        <p style="color: var(--accent-color); font-size: 1.1rem;">BSc Maths, Operational Research, Statitistics and Economics (MORSE) - University of Warwick    
-        <p style="font-size: 0.8rem; opacity: 0.8;">(Rotate globe and click points to view projects)</p>
+        <p style="color: var(--accent-color); font-size: 1.1rem;">BSc Maths, Operational Research, Statistics and Economics (MORSE) - University of Warwick</p>
+        <p style="font-size: 0.8rem; opacity: 0.8;">(Rotate globe or use Menu to view projects)</p>
     </div>
 
     <div id="projectModal" class="modal-overlay">
@@ -104,12 +111,14 @@
 
     <div class="sidebar" id="mySidebar">
         <h1>Your Name</h1>
-        <p>Research Engineer specializing in Remote Sensing & Deep Learning.</p>
+        <p>Research Engineer specialising in Remote Sensing & Deep Learning.</p>
         <hr style="border-color: #333;">
-        <div id="about">
-            <h2>About Me</h2>
-            <p>I build AI models that monitor planetary changes.</p>
-        </div>
+        
+        <div id="project-list-container">
+            <h2>Projects</h2>
+            <p style="font-size: 0.8rem; color: #888;">(Click to view details)</p>
+            </div>
+
         <div id="contact">
             <h2>Contact / CV</h2>
             <a href="cv.pdf" class="btn" style="width: 100%; text-align: center; box-sizing: border-box;">Download CV</a>
@@ -117,21 +126,72 @@
     </div>
 
     <script>
-        // --- SIDEBAR ---
+        // --- 1. DATA DEFINITION ---
+        const myProjects = [
+            {
+                lat: -1.2921, lng: 36.8219,
+                name: "Kenya",
+                fullName: "Kenya: Agricultural Mapping",
+                desc: "Mapping smallholder farms using Sentinel-2 to estimate crop yields.",
+                url: "#" 
+            },
+            {
+                lat: 51.5074, lng: -0.1278,
+                name: "UK",
+                fullName: "UK: Urban Heat Islands",
+                desc: "Analyzing Land Surface Temperature (LST) variations in London.",
+                url: "#"
+            },
+            {
+                lat: 41.9028, lng: 12.4964,
+                name: "Italy",
+                fullName: "Italy: Historical InSAR",
+                desc: "Monitoring ground deformation risks near ancient Roman heritage sites.",
+                url: "#"
+            },
+             {
+                lat: -15.8267, lng: -47.9218,
+                name: "Brazil",
+                fullName: "Brazil: Deforestation Alerts",
+                desc: "Deep learning segmentation for near real-time forest loss alerts.",
+                url: "#"
+            },
+            {
+                lat: 42.6977, lng: 23.3219,
+                name: "Bulgaria",
+                fullName: "Bulgaria: Forest Cover",
+                desc: "Decadal change detection analysis using the Landsat archive.",
+                url: "#"
+            },
+             {
+                lat: 48.2082, lng: 16.3738,
+                name: "Austria",
+                fullName: "Austria: Alpine Snow",
+                desc: "Tracking seasonal snow line retreat using MODIS data.",
+                url: "#"
+            },
+            {
+                lat: 78.2232, lng: 15.6267, 
+                name: "Arctic",
+                fullName: "The Arctic: Sea Ice Thickness",
+                desc: "CryoSat-2 altimetry processing to measure ice volume changes.",
+                url: "#"
+            }
+        ];
+
+        // --- 2. SIDEBAR & MODAL LOGIC ---
         function toggleSidebar() {
-            const sidebar = document.getElementById('mySidebar');
-            sidebar.classList.toggle('open');
+            document.getElementById('mySidebar').classList.toggle('open');
         }
 
-        // --- MODAL ---
         const modal = document.getElementById("projectModal");
         const modalTitle = document.getElementById("modalTitle");
         const modalBody = document.getElementById("modalBody");
 
         function openModal(data) {
-            modalTitle.innerText = data.name; 
+            modalTitle.innerText = data.fullName; 
             let content = data.desc;
-            if (data.url) {
+            if (data.url && data.url !== "#") {
                 content += `<br><br><a href="${data.url}" target="_blank" class="btn">Read Full Report &rarr;</a>`;
             }
             modalBody.innerHTML = content; 
@@ -145,76 +205,55 @@
         }
         
         window.onclick = function(event) {
-            if (event.target == modal) { closeModal(); }
+            if (event.target == modal) closeModal();
         }
 
-        // --- DATA ---
-        const myProjects = [
-            {
-                lat: -1.2921, lng: 36.8219,
-                name: "Kenya: Agricultural Mapping",
-                desc: "Mapping smallholder farms using Sentinel-2 to estimate crop yields.",
-                url: "#" 
-            },
-            {
-                lat: 51.5074, lng: -0.1278,
-                name: "UK: Urban Heat Islands",
-                desc: "Analyzing Land Surface Temperature (LST) variations in London.",
-                url: "#"
-            },
-            {
-                lat: 41.9028, lng: 12.4964,
-                name: "Italy: Historical InSAR",
-                desc: "Monitoring ground deformation risks near ancient Roman heritage sites.",
-                url: "#"
-            },
-             {
-                lat: -15.8267, lng: -47.9218,
-                name: "Brazil: Deforestation Alerts",
-                desc: "Deep learning segmentation for near real-time forest loss alerts.",
-                url: "#"
-            },
-            {
-                lat: 42.6977, lng: 23.3219,
-                name: "Bulgaria: Forest Cover",
-                desc: "Decadal change detection analysis using the Landsat archive.",
-                url: "#"
-            },
-             {
-                lat: 48.2082, lng: 16.3738,
-                name: "Austria: Alpine Snow",
-                desc: "Tracking seasonal snow line retreat using MODIS data.",
-                url: "#"
-            },
-            {
-                lat: 78.2232, lng: 15.6267, 
-                name: "The Arctic: Sea Ice Thickness",
-                desc: "CryoSat-2 altimetry processing to measure ice volume changes.",
-                url: "#"
-            }
-        ];
+        // --- 3. POPULATE SIDEBAR (FAILSAFE) ---
+        // This ensures users can click projects even if the globe doesn't render perfectly
+        const projectList = document.getElementById('project-list-container');
+        myProjects.forEach(p => {
+            const link = document.createElement('div');
+            link.className = 'sidebar-project-link';
+            link.innerText = p.fullName;
+            link.onclick = () => {
+                openModal(p);
+                toggleSidebar(); // Close menu after clicking
+            };
+            projectList.appendChild(link);
+        });
 
-        // --- GLOBE ---
+        // --- 4. GLOBE RENDERING ---
         const world = Globe()
             (document.getElementById('globeViz'))
-            .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
-            .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
-            .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
+            .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+            .backgroundImageUrl('https://unpkg.com/three-globe/example/img/night-sky.png')
             .atmosphereColor('#3a228a')
             .atmosphereAltitude(0.25)
             .autoRotate(true)
             .autoRotateSpeed(0.5)
-            // Fix for dots:
+            
+            // --- POINTS (DOTS) CONFIGURATION ---
             .pointsData(myProjects) 
             .pointLat('lat') 
             .pointLng('lng') 
             .pointColor(() => '#00ffcc') 
-            .pointAltitude(0.05) 
-            .pointRadius(0.8) 
+            .pointAltitude(0.1) // Increased altitude (high above surface)
+            .pointRadius(1.2)   // Increased size (very visible)
             .pointResolution(32) 
-            .onPointClick(pointData => {
-                openModal(pointData);
-            });
+            .onPointClick(openModal)
+
+            // --- LABELS (TEXT) CONFIGURATION ---
+            // This adds floating text names so you can't miss the location
+            .labelsData(myProjects)
+            .labelLat('lat')
+            .labelLng('lng')
+            .labelText('name')
+            .labelSize(2.0)
+            .labelDotRadius(0.5)
+            .labelColor(() => 'white')
+            .labelAltitude(0.12) // Slightly higher than the dots
+            .onLabelClick(openModal); // Clicking the text also works
+
     </script>
 </body>
 </html>
