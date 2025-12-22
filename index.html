@@ -1,148 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Name | Earth Observation AI</title>
-    <script src="//unpkg.com/globe.gl"></script>
-
-    <style>
-        /* --- CORE STYLES --- */
-        :root {
-            --sidebar-width: 300px;
-            --bg-color: #000000;
-            --text-color: #e0e6ed;
-            --accent-color: #00ffcc; /* Cyan for EO tech feel */
-            --glass-bg: rgba(20, 25, 40, 0.85);
-        }
-
-        body {
-            margin: 0; padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color); color: var(--text-color);
-            overflow: hidden;
-        }
-
-        /* --- THE 3D GLOBE CONTAINER --- */
-        #globeViz {
-            position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1;
-        }
-
-        /* --- SIDEBAR NAVIGATION --- */
-        .sidebar {
-            position: fixed; left: 0; top: 0; width: var(--sidebar-width); height: 100%;
-            background: var(--glass-bg); backdrop-filter: blur(10px);
-            border-right: 1px solid #333; z-index: 10;
-            transform: translateX(-100%); transition: transform 0.3s ease-in-out;
-            overflow-y: auto; padding: 20px; box-sizing: border-box;
-        }
-        .sidebar.open { transform: translateX(0); }
-
-        /* --- HAMBURGER BUTTON --- */
-        .menu-btn {
-            position: fixed; top: 20px; left: 20px; z-index: 20;
-            background: var(--accent-color); color: #000; border: none;
-            padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 1.2rem;
-            box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
-        }
-        .menu-btn:hover { background: #fff; }
-
-        /* --- CONTENT STYLES --- */
-        h1 { margin-top: 0; font-size: 1.8rem; }
-        h2 { border-left: 3px solid var(--accent-color); padding-left: 10px; margin-top: 30px;}
-        p { font-size: 0.95rem; line-height: 1.6; color: #ccc; }
-        
-        .project-card {
-            background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px;
-            margin-bottom: 15px; border: 1px solid #333;
-        }
-        .project-card:hover { border-color: var(--accent-color); }
-        
-        a.btn {
-            display: inline-block; background: var(--accent-color); color: #000;
-            padding: 8px 16px; text-decoration: none; border-radius: 4px;
-            font-size: 0.9rem; font-weight: bold; margin-top: 5px;
-        }
-
-        .hero-text {
-            position: absolute; top: 85%; left: 50%; transform: translate(-50%, -50%);
-            text-align: center; z-index: 5; pointer-events: none;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-        }
-
-        /* --- NEW! MODAL POPUP STYLES --- */
-        /* The dark background behind the popup */
-        .modal-overlay {
-            display: none; /* Hidden by default */
-            position: fixed; z-index: 100; left: 0; top: 0;
-            width: 100%; height: 100%; overflow: auto;
-            background-color: rgba(0,0,0,0.8); /* Black w/ opacity */
-            backdrop-filter: blur(5px);
-        }
-
-        /* The actual popup box */
-        .modal-content {
-            background-color: #1a1d29;
-            margin: 10% auto; /* 10% from the top and centered */
-            padding: 30px;
-            border: 2px solid var(--accent-color);
-            width: 80%;
-            max-width: 600px;
-            border-radius: 10px;
-            position: relative;
-            box-shadow: 0 0 30px rgba(0, 255, 204, 0.2);
-        }
-
-        /* The X close button */
-        .close-modal-btn {
-            color: #aaa;
-            position: absolute; top: 10px; right: 20px;
-            font-size: 28px; font-weight: bold; cursor: pointer;
-        }
-        .close-modal-btn:hover { color: var(--accent-color); }
-
-    </style>
-</head>
-<body>
-
-    <div id="globeViz"></div>
-    <button class="menu-btn" onclick="toggleSidebar()">☰ Menu</button>
-
-    <div class="hero-text" id="heroMsg">
-        <h1 style="font-size: 2rem; margin:0;">YOUR NAME</h1>
-        <p style="color: var(--accent-color); font-size: 1.1rem;">AI for Earth Observation</p>
-        <p style="font-size: 0.8rem; opacity: 0.8;">(Rotate globe and click points to view projects)</p>
-    </div>
-
-    <div id="projectModal" class="modal-overlay">
-        <div class="modal-content">
-            <span class="close-modal-btn" onclick="closeModal()">&times;</span>
-            <h2 id="modalTitle" style="margin-top:0; color: var(--accent-color);">Project Title</h2>
-            <div id="modalBody">Project description goes here...</div>
-        </div>
-    </div>
-
-    <div class="sidebar" id="mySidebar">
-        <h1>Your Name</h1>
-        <p>Research Engineer specializing in Remote Sensing & Deep Learning.</p>
-        <hr style="border-color: #333;">
-        <div id="about">
-            <h2>About Me</h2>
-            <p>I build AI models that monitor planetary changes.</p>
-        </div>
-        <div id="contact">
-            <h2>Contact / CV</h2>
-            <a href="cv.pdf" class="btn" style="width: 100%; text-align: center; box-sizing: border-box;">Download CV</a>
-        </div>
-    </div>
-
-    <script>
+<script>
+        // --- 1. SIDEBAR LOGIC ---
         function toggleSidebar() {
             const sidebar = document.getElementById('mySidebar');
             sidebar.classList.toggle('open');
         }
 
-        // --- NEW! MODAL FUNCTIONS ---
+        // --- 2. MODAL POPUP LOGIC ---
         const modal = document.getElementById("projectModal");
         const modalTitle = document.getElementById("modalTitle");
         const modalBody = document.getElementById("modalBody");
@@ -150,61 +13,75 @@
         // Function to open modal and fill data
         function openModal(data) {
             modalTitle.innerText = data.name; // Set title
-            modalBody.innerHTML = data.desc; // Set body HTML
-            modal.style.display = "block"; // Make visible
-            world.autoRotate(false); // Stop rotation so they can read
+            
+            // Create the HTML for the description + A button to the report
+            let content = data.desc;
+            if (data.url) {
+                content += `<br><br><a href="${data.url}" target="_blank" class="btn">Read Full Report &rarr;</a>`;
+            }
+            
+            modalBody.innerHTML = content; 
+            modal.style.display = "block"; 
+            world.autoRotate(false); // Pause rotation
         }
 
-        // Function to close modal
         function closeModal() {
             modal.style.display = "none";
             world.autoRotate(true); // Resume rotation
         }
         
-        // Close modal if clicking outside the box content
         window.onclick = function(event) {
-            if (event.target == modal) {
-                closeModal();
-            }
+            if (event.target == modal) { closeModal(); }
         }
 
-        // --- NEW! YOUR REAL PROJECT DATA ---
-        // I have added approximate coordinates for your requested locations.
-        // You can edit the "desc" field with full HTML for your projects.
+        // --- 3. YOUR PROJECT DATA ---
+        // I added the 'url' field. You can put links to PDFs or other pages there.
         const myProjects = [
             {
-                lat: -1.2921, lng: 36.8219, // Nairobi, Kenya
+                lat: -1.2921, lng: 36.8219,
                 name: "Kenya: Agricultural Mapping",
-                desc: "<p>Used Sentinel-2 data to map smallholder farms and estimate crop types in regions with heavy cloud cover.</p><p><strong>Tech:</strong> Python, rasterio, Random Forest.</p>"
+                desc: "Mapping smallholder farms using Sentinel-2 to estimate crop yields.",
+                url: "project-kenya.html" // Change this to your actual link/PDF
             },
             {
-                lat: 51.5074, lng: -0.1278, // London, UK
+                lat: 51.5074, lng: -0.1278,
                 name: "UK: Urban Heat Islands",
-                desc: "<p>Analyzing Land Surface Temperature (LST) from Landsat 8 to identify heat islands in metropolitan London.</p>"
+                desc: "Analyzing Land Surface Temperature (LST) variations in London.",
+                url: "#"
             },
             {
-                lat: 41.9028, lng: 12.4964, // Rome, Italy
-                name: "Italy: Historical Site Monitoring",
-                desc: "<p>Using SAR interferometry (InSAR) to detect minute ground deformation posing risks to ancient structures.</p>"
+                lat: 41.9028, lng: 12.4964,
+                name: "Italy: Historical InSAR",
+                desc: "Monitoring ground deformation risks near ancient Roman heritage sites.",
+                url: "#"
             },
              {
-                lat: -15.8267, lng: -47.9218, // Brasilia, Brazil
+                lat: -15.8267, lng: -47.9218,
                 name: "Brazil: Deforestation Alerts",
-                desc: "<p>Developed a near real-time alert system using deep learning semantic segmentation on Planet imagery.</p>"
+                desc: "Deep learning segmentation for near real-time forest loss alerts.",
+                url: "#"
             },
             {
-                lat: 42.6977, lng: 23.3219, // Sofia, Bulgaria
-                name: "Bulgaria: Forest Cover Change",
-                desc: "<p>Decadal change detection analysis using the Landsat archive to quantify reforestation efforts.</p>"
+                lat: 42.6977, lng: 23.3219,
+                name: "Bulgaria: Forest Cover",
+                desc: "Decadal change detection analysis using the Landsat archive.",
+                url: "#"
             },
              {
-                lat: 48.2082, lng: 16.3738, // Vienna, Austria
-                name: "Austria: Alpine Snow Cover",
-                desc: "<p>Monitoring seasonal snow line retreat in the Alps using MODIS and Sentinel-3 data.</p>"
+                lat: 48.2082, lng: 16.3738,
+                name: "Austria: Alpine Snow",
+                desc: "Tracking seasonal snow line retreat using MODIS data.",
+                url: "#"
+            },
+            {
+                lat: 78.2232, lng: 15.6267, // Longyearbyen coordinates
+                name: "The Arctic: Sea Ice Thickness",
+                desc: "CryoSat-2 altimetry processing to measure ice volume changes.",
+                url: "#"
             }
         ];
 
-        // --- SETUP THE GLOBE ---
+        // --- 4. GLOBE CONFIGURATION ---
         const world = Globe()
             (document.getElementById('globeViz'))
             .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
@@ -213,17 +90,19 @@
             .atmosphereColor('#3a228a')
             .atmosphereAltitude(0.25)
             .autoRotate(true)
-            .autoRotateSpeed(0.3)
-            // --- NEW! POINT CONFIGURATION ---
-            .pointsData(myProjects) // Feed your real data here
-            .pointAltitude(0.02) // How high dots float
-            .pointColor(() => '#00ffcc') // Cyan color
-            .pointRadius(0.5) // Size of dots
-            .pointResolution(32) // How smooth the dots are
-            // NEW! WHAT HAPPENS ON CLICK
+            .autoRotateSpeed(0.5)
+            
+            // --- FIX START: FORCE DOT RENDERING ---
+            .pointsData(myProjects) 
+            .pointLat('lat')  // Explicitly tell it where latitude is
+            .pointLng('lng')  // Explicitly tell it where longitude is
+            .pointColor(() => '#00ffcc') 
+            .pointAltitude(0.05) // Lifted them higher so they don't clip into mountains
+            .pointRadius(0.8)    // Made them bigger so they are easier to click
+            .pointResolution(32) 
+            // --- FIX END ---
+            
             .onPointClick(pointData => {
                 openModal(pointData);
             });
     </script>
-</body>
-</html>
