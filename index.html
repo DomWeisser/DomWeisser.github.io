@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dominic Weisser | AI & Earth Observation</title>
     
-    <script src="//unpkg.com/three"></script>
-    <script src="//unpkg.com/globe.gl"></script>
+    <script src="//unpkg.com/three@0.148.0/build/three.min.js"></script>
+    <script src="//unpkg.com/globe.gl@2.26.4/dist/globe.gl.min.js"></script>
 
     <style>
         /* --- CSS STYLES --- */
@@ -21,7 +21,7 @@
         body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg-color); color: var(--text-color); overflow: hidden; }
         #globeViz { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; }
         
-        /* HEADER & UI */
+        /* HEADER */
         .header-overlay { position: absolute; top: 20px; left: 80px; z-index: 5; pointer-events: none; text-align: left; max-width: 600px; }
         h1 { margin: 0; font-size: 2rem; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
         .subtitle { color: var(--accent-color); font-size: 1rem; font-weight: 600; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
@@ -47,13 +47,23 @@
         .modal-content { background-color: #151922; margin: 10% auto; padding: 40px; border: 1px solid var(--accent-color); width: 80%; max-width: 600px; border-radius: 8px; position: relative; }
         .close-modal-btn { position: absolute; top: 15px; right: 20px; color: #fff; font-size: 30px; cursor: pointer; }
         
-        /* DEBUG BOX */
-        #debug-box { position: fixed; bottom: 10px; right: 10px; color: lime; background: rgba(0,0,0,0.8); padding: 5px; font-family: monospace; font-size: 11px; z-index: 9999; pointer-events: none; }
+        /* NEW: STYLE FOR THE 2D DOTS */
+        .project-dot {
+            width: 14px;
+            height: 14px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px var(--accent-color); /* Glow effect */
+            transition: transform 0.2s;
+        }
+        .project-dot:hover {
+            transform: scale(1.5);
+            background-color: #fff;
+        }
     </style>
 </head>
 <body>
-
-    <div id="debug-box">Loading...</div>
 
     <div id="globeViz"></div>
 
@@ -62,7 +72,7 @@
     <div class="header-overlay">
         <h1>Dominic Weisser</h1>
         <div class="subtitle">MSc AI for Sustainable Development - UCL</div>
-        <div class="uni-info">BSc Maths, OR, Stats & Economics (MORSE) - Warwick</div>
+        <div class="subtitle">BSc Maths, Opeartional Research, Stats & Economics (MORSE) - Uni of Warwick</div>
     </div>
 
     <div class="sidebar" id="mySidebar">
@@ -86,11 +96,6 @@
     </div>
 
     <script>
-        function log(msg) { 
-            console.log(msg); 
-            document.getElementById('debug-box').innerText = msg; 
-        }
-
         // --- DATA ---
         const myProjects = [
             { lat: -1.2921, lng: 36.8219, name: "Kenya", fullName: "Kenya: Agricultural Mapping", desc: "Mapping smallholder farms using Sentinel-2.", url: "#" },
@@ -121,7 +126,6 @@
         }
         window.onclick = e => { if (e.target == modal) closeModal(); }
 
-        // Sidebar Population
         const listContainer = document.getElementById('project-list-container');
         myProjects.forEach(p => {
             const div = document.createElement('div');
@@ -131,52 +135,42 @@
             listContainer.appendChild(div);
         });
 
-        // --- GLOBE INITIALIZATION (UNCHAINED) ---
+        // --- GLOBE INITIALIZATION ---
+        // 1. Create Globe
+        const world = Globe()(document.getElementById('globeViz'))
+            .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+            .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
+            
+            // 2. ADD 2D DOTS (HTML MARKERS)
+            .htmlElementsData(myProjects)
+            .htmlLat('lat')
+            .htmlLng('lng')
+            .htmlElement(d => {
+                // Create a 2D Div element for each country
+                const el = document.createElement('div');
+                el.className = 'project-dot'; // Uses CSS style defined above
+                el.onclick = () => openModal(d);
+                return el;
+            })
+            
+            // 3. ADD TEXT LABELS (Offset slightly so they don't cover the dot)
+            .labelsData(myProjects)
+            .labelLat('lat')
+            .labelLng('lng')
+            .labelText('name')
+            .labelSize(1.5)
+            .labelDotRadius(0) // No dot from the label itself
+            .labelColor(() => 'rgba(255, 255, 255, 0.85)')
+            .labelAltitude(0.05) // Slightly floating
+            .onLabelClick(openModal);
+
+        // 4. START ROTATION
+        // Wrapped in try/catch for safety
         try {
-            log('Initializing Globe...');
-            
-            // 1. Create Instance
-            const world = Globe()(document.getElementById('globeViz'));
-
-            // 2. Set Images
-            world.globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg');
-            world.backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png');
-            
-            // 3. ADD DATA (Prioritized!)
-            log('Adding Dots...');
-            world.pointsData(myProjects);
-            world.pointLat('lat');
-            world.pointLng('lng');
-            world.pointColor(() => '#00ffcc');
-            world.pointAltitude(0.15); // High altitude
-            world.pointRadius(1.2);    // Large size
-            world.pointResolution(24);
-            world.onPointClick(openModal);
-
-            // 4. ADD LABELS
-            world.labelsData(myProjects);
-            world.labelLat('lat');
-            world.labelLng('lng');
-            world.labelText('name');
-            world.labelSize(1.5);
-            world.labelDotRadius(1.2);
-            world.labelColor(() => 'white');
-            world.labelAltitude(0.18);
-            world.onLabelClick(openModal);
-
-            // 5. ATTEMPT ROTATION (Protected)
-            // This is wrapped so if it fails, the dots still show up!
-            try {
-                world.controls().autoRotate = true;
-                world.controls().autoRotateSpeed = 0.5;
-                log('Success: Globe + Dots + Rotation');
-            } catch (rotError) {
-                log('Globe working, but rotation failed (Minor). Dots are visible.');
-                console.error(rotError);
-            }
-
+            world.controls().autoRotate = true;
+            world.controls().autoRotateSpeed = 0.5;
         } catch (err) {
-            log('CRITICAL ERROR: ' + err.message);
+            console.log("Rotation error ignored for stability.");
         }
     </script>
 </body>
