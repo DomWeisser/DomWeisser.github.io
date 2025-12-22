@@ -4,120 +4,206 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your Name | Earth Observation AI</title>
+    
+    <script src="//unpkg.com/globe.gl"></script>
+
     <style>
-        /* --- EARTH OBSERVATION THEME STYLES --- */
+        /* --- CORE STYLES --- */
         :root {
-            --bg-color: #0b0d17; /* Deep Space */
-            --text-color: #e0e6ed; /* Star White */
-            --accent-color: #00ffcc; /* Satellite Data Cyan */
-            --card-bg: #15192b; /* Slightly lighter dark for cards */
+            --sidebar-width: 300px;
+            --bg-color: #000000;
+            --text-color: #e0e6ed;
+            --accent-color: #00ffcc; /* Cyan for EO tech feel */
+            --glass-bg: rgba(20, 25, 40, 0.85);
         }
 
         body {
+            margin: 0;
+            padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
-            margin: 0;
-            line-height: 1.6;
+            overflow: hidden; /* Hide scrollbars, globe fills screen */
         }
 
-        /* Container to keep things centered */
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
+        /* --- THE 3D GLOBE CONTAINER --- */
+        #globeViz {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1; /* Behind everything */
+        }
+
+        /* --- SIDEBAR NAVIGATION --- */
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: var(--sidebar-width);
+            height: 100%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px); /* Frosted glass effect */
+            border-right: 1px solid #333;
+            z-index: 10;
+            transform: translateX(-100%); /* Hidden by default */
+            transition: transform 0.3s ease-in-out;
+            overflow-y: auto;
             padding: 20px;
+            box-sizing: border-box;
         }
 
-        /* Header Section */
-        header {
-            text-align: center;
-            padding: 60px 0;
-            border-bottom: 1px solid #333;
+        /* Class to slide sidebar in */
+        .sidebar.open {
+            transform: translateX(0);
         }
+
+        /* --- HAMBURGER BUTTON --- */
+        .menu-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 20;
+            background: var(--accent-color);
+            color: #000;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+        }
+        .menu-btn:hover { background: #fff; }
+
+        /* --- CONTENT STYLES --- */
+        h1 { margin-top: 0; font-size: 1.8rem; }
+        h2 { border-left: 3px solid var(--accent-color); padding-left: 10px; margin-top: 30px;}
+        p { font-size: 0.95rem; line-height: 1.6; color: #ccc; }
         
-        h1 { font-size: 2.5rem; margin-bottom: 10px; }
-        .subtitle { color: var(--accent-color); font-size: 1.2rem; font-weight: bold; }
-
-        /* Sections */
-        section { padding: 40px 0; }
-        h2 { border-left: 4px solid var(--accent-color); padding-left: 15px; margin-bottom: 20px; }
-
-        /* Project Cards */
-        .project-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
         .project-card {
-            background: var(--card-bg);
-            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            padding: 15px;
             border-radius: 8px;
+            margin-bottom: 15px;
             border: 1px solid #333;
         }
         .project-card:hover { border-color: var(--accent-color); }
         
-        /* Links and Buttons */
-        a { color: var(--accent-color); text-decoration: none; }
-        .btn {
+        a.btn {
             display: inline-block;
             background: var(--accent-color);
             color: #000;
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
             font-weight: bold;
-            margin-top: 10px;
+            margin-top: 5px;
+        }
+
+        /* Overlay Text on Globe (Initial View) */
+        .hero-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 5;
+            pointer-events: none; /* Let clicks pass through to globe */
+            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        
-        <header>
-            <h1>Your Name Here</h1>
-            <p class="subtitle">AI Researcher // Earth Observation</p>
-            <p>Applying deep learning to monitor our changing planet.</p>
-        </header>
+    <div id="globeViz"></div>
 
-        <section id="about">
-            <h2>About Me</h2>
-            <p>
-                I am a researcher specializing in Computer Vision and Remote Sensing. 
-                My work focuses on analyzing satellite imagery (Sentinel-2, Landsat) 
-                to solve environmental challenges.
-            </p>
-        </section>
+    <button class="menu-btn" onclick="toggleSidebar()">☰ Menu</button>
 
-        <section id="research">
-            <h2>Research & Projects</h2>
-            <div class="project-grid">
-                
-                <div class="project-card">
-                    <h3>Deforestation Detection</h3>
-                    <p>Using U-Net and PyTorch to segment illegal logging activities in the Amazon rainforest.</p>
-                    <a href="#">View Code &rarr;</a>
-                </div>
-
-                <div class="project-card">
-                    <h3>Crop Yield Estimation</h3>
-                    <p>Time-series analysis of NDVI data to predict wheat yields using LSTM networks.</p>
-                    <a href="#">View Code &rarr;</a>
-                </div>
-
-            </div>
-        </section>
-
-        <section id="cv">
-            <h2>Curriculum Vitae</h2>
-            <p>Download my full resume to see my publication history and technical skills.</p>
-            <a href="cv.pdf" class="btn" target="_blank">Download CV (PDF)</a>
-        </section>
-
-        <footer style="text-align: center; padding-top: 40px; font-size: 0.8rem; color: #666;">
-            <p>&copy; 2025 Your Name. Built with HTML & CSS.</p>
-        </footer>
-
+    <div class="hero-text" id="heroMsg">
+        <h1 style="font-size: 3rem; margin:0;">YOUR NAME</h1>
+        <p style="color: var(--accent-color); font-size: 1.2rem;">AI for Earth Observation</p>
+        <p style="font-size: 0.9rem; opacity: 0.8;">(Click Menu or Drag Globe)</p>
     </div>
 
+    <div class="sidebar" id="mySidebar">
+        <h1>Your Name</h1>
+        <p>Research Engineer specializing in Remote Sensing & Deep Learning.</p>
+        
+        <hr style="border-color: #333;">
+
+        <div id="about">
+            <h2>About Me</h2>
+            <p>I build AI models that monitor planetary changes. My focus is on semantic segmentation of Sentinel-2 imagery.</p>
+        </div>
+
+        <div id="projects">
+            <h2>Projects</h2>
+            
+            <div class="project-card">
+                <h3>Cloud Removal GAN</h3>
+                <p>Removing cloud cover from optical satellite imagery using Generative Adversarial Networks.</p>
+                <a href="#" class="btn">View Code</a>
+            </div>
+
+            <div class="project-card">
+                <h3>Iceberg Tracking</h3>
+                <p>Real-time SAR data processing pipeline to track glacial calving events.</p>
+                <a href="#" class="btn">View Code</a>
+            </div>
+        </div>
+
+        <div id="contact">
+            <h2>Contact / CV</h2>
+            <p>Email: you@example.com</p>
+            <a href="cv.pdf" class="btn" style="width: 100%; text-align: center; box-sizing: border-box;">Download CV</a>
+        </div>
+    </div>
+
+    <script>
+        // --- A. TOGGLE SIDEBAR FUNCTION ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('mySidebar');
+            const hero = document.getElementById('heroMsg');
+            
+            sidebar.classList.toggle('open');
+            
+            // Optional: Fade out the center text when menu opens
+            if (sidebar.classList.contains('open')) {
+                hero.style.opacity = '0';
+            } else {
+                hero.style.opacity = '1';
+            }
+        }
+
+        // --- B. SETUP THE 3D GLOBE ---
+        // We use the Globe.gl library
+        const world = Globe()
+            (document.getElementById('globeViz'))
+            .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg') // Satellite Image
+            .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png') // Mountains texture
+            .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png') // Space background
+            .atmosphereColor('#3a228a')
+            .atmosphereAltitude(0.25)
+            .autoRotate(true)
+            .autoRotateSpeed(0.5);
+
+        // Optional: Add some random data points (simulating satellites/stations)
+        // You can remove this block if you want a clean globe
+        const N = 20;
+        const gData = [...Array(N).keys()].map(() => ({
+            lat: (Math.random() - 0.5) * 180,
+            lng: (Math.random() - 0.5) * 360,
+            size: Math.random() / 3,
+            color: ['red', 'white', 'blue', 'green'][Math.round(Math.random() * 3)]
+        }));
+
+        world.pointsData(gData)
+            .pointAltitude(0.01)
+            .pointColor('color');
+
+    </script>
 </body>
 </html>
