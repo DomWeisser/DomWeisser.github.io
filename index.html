@@ -3,256 +3,297 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Name | Earth Observation AI</title>
+    <title>Dominic Weisser | AI & Earth Observation</title>
     
-    <script src="https://unpkg.com/globe.gl"></script>
+    <script src="//unpkg.com/three"></script>
+    <script src="//unpkg.com/globe.gl"></script>
 
     <style>
         /* --- CSS STYLES --- */
         :root {
-            --sidebar-width: 300px;
+            --sidebar-width: 320px;
             --bg-color: #000000;
-            --text-color: #e0e6ed;
+            --text-color: #ffffff;
             --accent-color: #00ffcc; /* Cyan */
-            --glass-bg: rgba(20, 25, 40, 0.95);
+            --glass-bg: rgba(20, 25, 40, 0.9);
         }
 
         body {
             margin: 0; padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color); color: var(--text-color);
-            overflow: hidden;
+            overflow: hidden; /* Hide scrollbars */
         }
 
+        /* The Globe Container */
         #globeViz {
             position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1;
         }
 
-        /* SIDEBAR */
+        /* --- UI LAYOUT FIXED --- */
+        
+        /* 1. Header/Name moved to TOP LEFT to clear the globe view */
+        .header-overlay {
+            position: absolute; 
+            top: 20px; 
+            left: 80px; /* Space for the menu button */
+            z-index: 5;
+            pointer-events: none; /* Allows clicking "through" the text */
+            text-align: left;
+            max-width: 600px;
+        }
+        
+        h1 { 
+            margin: 0; 
+            font-size: 2rem; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            letter-spacing: 1px;
+        }
+        
+        .subtitle {
+            color: var(--accent-color); 
+            font-size: 1rem; 
+            margin-top: 5px; 
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+        
+        .uni-info {
+            font-size: 0.85rem; 
+            color: #ddd; 
+            margin-top: 5px;
+            opacity: 0.9;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        /* 2. Menu Button */
+        .menu-btn {
+            position: fixed; top: 25px; left: 20px; z-index: 20;
+            background: rgba(0, 255, 204, 0.1); 
+            color: var(--accent-color); 
+            border: 1px solid var(--accent-color);
+            padding: 10px 14px; border-radius: 5px; 
+            cursor: pointer; font-weight: bold; font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+        .menu-btn:hover { background: var(--accent-color); color: #000; }
+
+        /* 3. Sidebar */
         .sidebar {
             position: fixed; left: 0; top: 0; width: var(--sidebar-width); height: 100%;
-            background: var(--glass-bg); backdrop-filter: blur(10px);
-            border-right: 1px solid #333; z-index: 10;
+            background: var(--glass-bg); backdrop-filter: blur(12px);
+            border-right: 1px solid #333; z-index: 15;
             transform: translateX(-100%); transition: transform 0.3s ease-in-out;
-            overflow-y: auto; padding: 20px; box-sizing: border-box;
+            overflow-y: auto; padding: 30px; box-sizing: border-box;
+            padding-top: 80px; /* Space for close button */
         }
         .sidebar.open { transform: translateX(0); }
-
-        /* BUTTONS & LINKS */
-        .menu-btn {
-            position: fixed; top: 20px; left: 20px; z-index: 20;
-            background: var(--accent-color); color: #000; border: none;
-            padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 1.2rem;
-            box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+        
+        /* Close Sidebar Button */
+        .close-sidebar {
+            position: absolute; top: 20px; right: 20px;
+            color: #aaa; font-size: 1.5rem; cursor: pointer;
         }
-        .menu-btn:hover { background: #fff; }
+
+        .sidebar-project-link {
+            cursor: pointer; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1);
+            transition: color 0.2s;
+        }
+        .sidebar-project-link:hover { color: var(--accent-color); }
+        .sidebar-project-title { font-weight: bold; display: block; }
+        .sidebar-project-loc { font-size: 0.8rem; color: #888; }
 
         a.btn {
             display: inline-block; background: var(--accent-color); color: #000;
             padding: 8px 16px; text-decoration: none; border-radius: 4px;
-            font-size: 0.9rem; font-weight: bold; margin-top: 5px;
+            font-size: 0.9rem; font-weight: bold; margin-top: 10px;
         }
-        
-        /* Sidebar Project Links */
-        .sidebar-project-link {
-            cursor: pointer; padding: 10px; border-bottom: 1px solid #333;
-            transition: background 0.2s;
-        }
-        .sidebar-project-link:hover { background: rgba(255,255,255,0.1); color: var(--accent-color); }
 
-        /* HERO TEXT */
-        .hero-text {
-            position: absolute; top: 85%; left: 50%; transform: translate(-50%, -50%);
-            text-align: center; z-index: 5; pointer-events: none;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.8);
-        }
-        h1 { margin-top: 0; font-size: 1.8rem; }
-        h2 { border-left: 3px solid var(--accent-color); padding-left: 10px; margin-top: 30px;}
-        p { font-size: 0.95rem; line-height: 1.6; color: #ccc; }
-
-        /* POPUP MODAL */
+        /* 4. Modal Popup */
         .modal-overlay {
             display: none; position: fixed; z-index: 100; left: 0; top: 0;
             width: 100%; height: 100%; overflow: auto;
-            background-color: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            background-color: rgba(0,0,0,0.85); backdrop-filter: blur(5px);
         }
         .modal-content {
-            background-color: #1a1d29; margin: 10% auto; padding: 30px;
-            border: 2px solid var(--accent-color); width: 80%; max-width: 600px;
-            border-radius: 10px; position: relative;
-            box-shadow: 0 0 30px rgba(0, 255, 204, 0.2);
+            background-color: #151922; margin: 10% auto; padding: 40px;
+            border: 1px solid var(--accent-color); width: 80%; max-width: 600px;
+            border-radius: 8px; position: relative;
+            box-shadow: 0 0 40px rgba(0, 255, 204, 0.1);
         }
         .close-modal-btn {
-            color: #aaa; position: absolute; top: 10px; right: 20px;
-            font-size: 28px; font-weight: bold; cursor: pointer;
+            color: #fff; position: absolute; top: 15px; right: 20px;
+            font-size: 30px; cursor: pointer;
         }
         .close-modal-btn:hover { color: var(--accent-color); }
+
     </style>
 </head>
 <body>
 
     <div id="globeViz"></div>
-    <button class="menu-btn" onclick="toggleSidebar()">☰ Menu</button>
 
-    <div class="hero-text" id="heroMsg">
-        <h1 style="font-size: 2rem; margin:0;">Dominic Weisser</h1>
-        <p style="color: var(--accent-color); font-size: 1.1rem;">MSc AI for Sustainable Development - UCL</p>
-        <p style="color: var(--accent-color); font-size: 1.1rem;">BSc Maths, Operational Research, Statistics and Economics (MORSE) - University of Warwick</p>
-        <p style="font-size: 0.8rem; opacity: 0.8;">(Rotate globe or use Menu to view projects)</p>
+    <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+
+    <div class="header-overlay">
+        <h1>Dominic Weisser</h1>
+        <div class="subtitle">MSc AI for Sustainable Development - UCL</div>
+        <div class="uni-info">BSc Maths, OR, Stats & Economics (MORSE) - Warwick</div>
+        <p style="font-size: 0.85rem; color: #bbb; margin-top: 15px;">
+            <span style="color:var(--accent-color)">●</span> Rotate the globe to explore projects
+        </p>
+    </div>
+
+    <div class="sidebar" id="mySidebar">
+        <div class="close-sidebar" onclick="toggleSidebar()">✕</div>
+        
+        <h2 style="color: var(--accent-color);">Projects</h2>
+        <div id="project-list-container">
+            </div>
+
+        <div style="margin-top: 40px; border-top: 1px solid #333; padding-top: 20px;">
+            <h3>About</h3>
+            <p style="font-size: 0.9rem; color: #ccc;">
+                Specializing in Computer Vision and Earth Observation for environmental monitoring.
+            </p>
+            <br>
+            <a href="cv.pdf" class="btn" style="width: 100%; text-align: center; box-sizing: border-box;">Download CV</a>
+        </div>
     </div>
 
     <div id="projectModal" class="modal-overlay">
         <div class="modal-content">
             <span class="close-modal-btn" onclick="closeModal()">&times;</span>
-            <h2 id="modalTitle" style="margin-top:0; color: var(--accent-color);">Project Title</h2>
-            <div id="modalBody">Project description goes here...</div>
-        </div>
-    </div>
-
-    <div class="sidebar" id="mySidebar">
-        <h1>Your Name</h1>
-        <p>Research Engineer specialising in Remote Sensing & Deep Learning.</p>
-        <hr style="border-color: #333;">
-        
-        <div id="project-list-container">
-            <h2>Projects</h2>
-            <p style="font-size: 0.8rem; color: #888;">(Click to view details)</p>
-            </div>
-
-        <div id="contact">
-            <h2>Contact / CV</h2>
-            <a href="cv.pdf" class="btn" style="width: 100%; text-align: center; box-sizing: border-box;">Download CV</a>
+            <h2 id="modalTitle" style="margin-top:0; color: var(--accent-color);">Title</h2>
+            <div id="modalBody" style="line-height: 1.6;">Desc</div>
         </div>
     </div>
 
     <script>
-        // --- 1. DATA DEFINITION ---
+        // --- DATA ---
         const myProjects = [
             {
                 lat: -1.2921, lng: 36.8219,
                 name: "Kenya",
                 fullName: "Kenya: Agricultural Mapping",
-                desc: "Mapping smallholder farms using Sentinel-2 to estimate crop yields.",
+                desc: "Mapping smallholder farms using Sentinel-2 to estimate crop yields in cloud-prone regions.",
                 url: "#" 
             },
             {
                 lat: 51.5074, lng: -0.1278,
                 name: "UK",
                 fullName: "UK: Urban Heat Islands",
-                desc: "Analyzing Land Surface Temperature (LST) variations in London.",
+                desc: "Analyzing Land Surface Temperature (LST) variations in London using Landsat 8 thermal bands.",
                 url: "#"
             },
             {
                 lat: 41.9028, lng: 12.4964,
                 name: "Italy",
-                fullName: "Italy: Historical InSAR",
-                desc: "Monitoring ground deformation risks near ancient Roman heritage sites.",
+                fullName: "Italy: Heritage Monitoring",
+                desc: "Using InSAR (Interferometric Synthetic Aperture Radar) to detect ground deformation risks near historical sites.",
                 url: "#"
             },
-             {
+            {
                 lat: -15.8267, lng: -47.9218,
                 name: "Brazil",
                 fullName: "Brazil: Deforestation Alerts",
-                desc: "Deep learning segmentation for near real-time forest loss alerts.",
+                desc: "Developed a U-Net deep learning model for near real-time forest loss detection in the Amazon.",
                 url: "#"
             },
             {
                 lat: 42.6977, lng: 23.3219,
                 name: "Bulgaria",
                 fullName: "Bulgaria: Forest Cover",
-                desc: "Decadal change detection analysis using the Landsat archive.",
+                desc: "Decadal change detection analysis using the Landsat archive to quantify reforestation.",
                 url: "#"
             },
-             {
+            {
                 lat: 48.2082, lng: 16.3738,
                 name: "Austria",
                 fullName: "Austria: Alpine Snow",
-                desc: "Tracking seasonal snow line retreat using MODIS data.",
+                desc: "Tracking seasonal snow line retreat in the Alps using MODIS and Sentinel-3 data.",
                 url: "#"
             },
             {
                 lat: 78.2232, lng: 15.6267, 
                 name: "Arctic",
-                fullName: "The Arctic: Sea Ice Thickness",
-                desc: "CryoSat-2 altimetry processing to measure ice volume changes.",
+                fullName: "The Arctic: Sea Ice",
+                desc: "CryoSat-2 altimetry processing to measure ice volume changes and thickness anomalies.",
                 url: "#"
             }
         ];
 
-        // --- 2. SIDEBAR & MODAL LOGIC ---
+        // --- UI FUNCTIONS ---
         function toggleSidebar() {
             document.getElementById('mySidebar').classList.toggle('open');
         }
 
         const modal = document.getElementById("projectModal");
-        const modalTitle = document.getElementById("modalTitle");
-        const modalBody = document.getElementById("modalBody");
-
+        
         function openModal(data) {
-            modalTitle.innerText = data.fullName; 
+            document.getElementById("modalTitle").innerText = data.fullName;
             let content = data.desc;
             if (data.url && data.url !== "#") {
                 content += `<br><br><a href="${data.url}" target="_blank" class="btn">Read Full Report &rarr;</a>`;
             }
-            modalBody.innerHTML = content; 
-            modal.style.display = "block"; 
-            world.autoRotate(false); 
+            document.getElementById("modalBody").innerHTML = content;
+            modal.style.display = "block";
+            
+            // Optional: Pause rotation when reading
+            if(world) world.autoRotate(false);
         }
 
         function closeModal() {
             modal.style.display = "none";
-            world.autoRotate(true); 
-        }
-        
-        window.onclick = function(event) {
-            if (event.target == modal) closeModal();
+            if(world) world.autoRotate(true);
         }
 
-        // --- 3. POPULATE SIDEBAR (FAILSAFE) ---
-        // This ensures users can click projects even if the globe doesn't render perfectly
-        const projectList = document.getElementById('project-list-container');
+        window.onclick = e => { if (e.target == modal) closeModal(); }
+
+        // --- POPULATE SIDEBAR ---
+        const listContainer = document.getElementById('project-list-container');
         myProjects.forEach(p => {
-            const link = document.createElement('div');
-            link.className = 'sidebar-project-link';
-            link.innerText = p.fullName;
-            link.onclick = () => {
+            const div = document.createElement('div');
+            div.className = 'sidebar-project-link';
+            div.innerHTML = `<span class="sidebar-project-title">${p.name}</span><span class="sidebar-project-loc">${p.fullName}</span>`;
+            div.onclick = () => {
                 openModal(p);
-                toggleSidebar(); // Close menu after clicking
+                // Optional: Spin globe to location?
+                world.pointOfView({ lat: p.lat, lng: p.lng, altitude: 2 }, 1500);
             };
-            projectList.appendChild(link);
+            listContainer.appendChild(div);
         });
 
-        // --- 4. GLOBE RENDERING ---
+        // --- GLOBE INIT ---
         const world = Globe()
             (document.getElementById('globeViz'))
             .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
             .backgroundImageUrl('https://unpkg.com/three-globe/example/img/night-sky.png')
             .atmosphereColor('#3a228a')
-            .atmosphereAltitude(0.25)
+            .atmosphereAltitude(0.2)
             .autoRotate(true)
             .autoRotateSpeed(0.5)
             
-            // --- POINTS (DOTS) CONFIGURATION ---
-            .pointsData(myProjects) 
-            .pointLat('lat') 
-            .pointLng('lng') 
-            .pointColor(() => '#00ffcc') 
-            .pointAltitude(0.1) // Increased altitude (high above surface)
-            .pointRadius(1.2)   // Increased size (very visible)
-            .pointResolution(32) 
+            // POINTS CONFIGURATION
+            .pointsData(myProjects)
+            .pointLat('lat')
+            .pointLng('lng')
+            .pointColor(() => '#00ffcc')
+            .pointAltitude(0.12)  // HIGH ALTITUDE to prevent clipping
+            .pointRadius(1.5)     // LARGE RADIUS to be visible
+            .pointResolution(32)
             .onPointClick(openModal)
-
-            // --- LABELS (TEXT) CONFIGURATION ---
-            // This adds floating text names so you can't miss the location
+            
+            // LABELS CONFIGURATION
             .labelsData(myProjects)
             .labelLat('lat')
             .labelLng('lng')
             .labelText('name')
             .labelSize(2.0)
-            .labelDotRadius(0.5)
-            .labelColor(() => 'white')
-            .labelAltitude(0.12) // Slightly higher than the dots
-            .onLabelClick(openModal); // Clicking the text also works
+            .labelDotRadius(1.5)
+            .labelColor(() => 'rgba(255, 255, 255, 0.85)')
+            .labelAltitude(0.15) // Slightly higher than dots
+            .onLabelClick(openModal);
 
     </script>
 </body>
