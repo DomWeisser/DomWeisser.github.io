@@ -15,7 +15,7 @@
             --bg-color: #000000;
             --text-color: #ffffff;
             --accent-color: #00ffcc; /* Cyan */
-            --glass-bg: rgba(20, 25, 40, 0.9);
+            --glass-bg: rgba(20, 25, 40, 0.95);
         }
 
         body { margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg-color); color: var(--text-color); overflow: hidden; }
@@ -30,33 +30,59 @@
         .menu-btn { position: fixed; top: 25px; left: 20px; z-index: 20; background: rgba(0, 255, 204, 0.1); color: var(--accent-color); border: 1px solid var(--accent-color); padding: 10px 14px; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 1.2rem; }
         .menu-btn:hover { background: var(--accent-color); color: #000; }
 
-        /* SIDEBAR */
-        .sidebar { position: fixed; left: 0; top: 0; width: var(--sidebar-width); height: 100%; background: var(--glass-bg); backdrop-filter: blur(12px); border-right: 1px solid #333; z-index: 15; transform: translateX(-100%); transition: transform 0.3s ease-in-out; padding: 30px; box-sizing: border-box; padding-top: 80px; }
+        /* SIDEBAR STYLES */
+        .sidebar { position: fixed; left: 0; top: 0; width: var(--sidebar-width); height: 100%; background: var(--glass-bg); backdrop-filter: blur(12px); border-right: 1px solid #333; z-index: 15; transform: translateX(-100%); transition: transform 0.3s ease-in-out; padding: 30px; box-sizing: border-box; padding-top: 80px; overflow-y: auto; }
         .sidebar.open { transform: translateX(0); }
         .close-sidebar { position: absolute; top: 20px; right: 20px; color: #aaa; cursor: pointer; font-size: 1.5rem; }
 
-        .sidebar-project-link { cursor: pointer; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .sidebar-project-link:hover { color: var(--accent-color); }
-        .sidebar-project-title { font-weight: bold; display: block; }
-        .sidebar-project-loc { font-size: 0.8rem; color: #888; }
-
-        a.btn { display: inline-block; background: var(--accent-color); color: #000; padding: 8px 16px; text-decoration: none; border-radius: 4px; font-size: 0.9rem; font-weight: bold; margin-top: 10px; margin-right: 10px;}
-        
-        /* Secondary Button Style (for GitHub) */
-        a.btn-outline { background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); }
-        a.btn-outline:hover { background: rgba(0, 255, 204, 0.1); }
-
-        /* MODAL */
-        .modal-overlay { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(5px); }
-        .modal-content { background-color: #151922; margin: 10% auto; padding: 40px; border: 1px solid var(--accent-color); width: 80%; max-width: 600px; border-radius: 8px; position: relative; }
-        .close-modal-btn { position: absolute; top: 15px; right: 20px; color: #fff; font-size: 30px; cursor: pointer; }
-        
-        /* 2D DOTS STYLE */
-        .project-dot {
-            width: 14px; height: 14px; background-color: var(--accent-color); border-radius: 50%; cursor: pointer;
-            box-shadow: 0 0 10px var(--accent-color); transition: transform 0.2s;
+        /* MAIN MENU BUTTONS (Accordion Headers) */
+        .menu-section-btn {
+            width: 100%; text-align: left; background: none; border: none;
+            color: var(--text-color); font-size: 1.2rem; font-weight: 600;
+            padding: 15px 0; border-bottom: 1px solid #444; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
         }
+        .menu-section-btn:hover { color: var(--accent-color); }
+        
+        /* HIDDEN CONTENT SECTIONS */
+        .menu-content { display: none; padding: 10px 0 10px 15px; } /* Indented */
+        .menu-content.show { display: block; animation: fadeIn 0.3s; }
+
+        /* Project Links */
+        .sidebar-project-link { cursor: pointer; padding: 8px 0; font-size: 0.95rem; color: #ccc; border-left: 2px solid transparent; padding-left: 10px; margin-bottom: 5px; }
+        .sidebar-project-link:hover { color: var(--accent-color); border-left: 2px solid var(--accent-color); background: rgba(255,255,255,0.05); }
+
+        /* Contact Info */
+        .contact-row { margin-bottom: 15px; font-size: 0.9rem; color: #ddd; }
+        .contact-label { color: var(--accent-color); font-weight: bold; display: block; margin-bottom: 3px;}
+
+        /* Buttons */
+        a.btn { display: inline-block; background: var(--accent-color); color: #000; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-size: 0.9rem; font-weight: bold; margin-top: 5px; cursor: pointer;}
+        a.btn-outline { background: transparent; border: 1px solid var(--accent-color); color: var(--accent-color); }
+        
+        /* 2D DOTS */
+        .project-dot { width: 14px; height: 14px; background-color: var(--accent-color); border-radius: 50%; cursor: pointer; box-shadow: 0 0 10px var(--accent-color); transition: transform 0.2s; }
         .project-dot:hover { transform: scale(1.5); background-color: #fff; }
+
+        /* --- MODALS (POPUPS) --- */
+        .modal-overlay { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(5px); }
+        
+        /* Standard Modal (Projects/About) */
+        .modal-content { background-color: #151922; margin: 5% auto; padding: 40px; border: 1px solid var(--accent-color); width: 80%; max-width: 800px; border-radius: 8px; position: relative; }
+        
+        /* Wide Modal (for CV PDF) */
+        .modal-content-wide { background-color: #151922; margin: 2% auto; padding: 20px; border: 1px solid var(--accent-color); width: 90%; height: 90%; border-radius: 8px; position: relative; display: flex; flex-direction: column;}
+
+        .close-modal-btn { position: absolute; top: 15px; right: 20px; color: #fff; font-size: 30px; cursor: pointer; z-index: 10;}
+        .close-modal-btn:hover { color: var(--accent-color); }
+
+        /* Animation */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* About Me Images */
+        .about-img-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .about-img { width: 100%; border-radius: 5px; border: 1px solid #444; }
+
     </style>
 </head>
 <body>
@@ -67,111 +93,177 @@
     <div class="header-overlay">
         <h1>Dominic Weisser</h1>
         <div class="subtitle">MSc AI for Sustainable Development - UCL</div>
-        <div class="uni-info">BSc Maths, Operational Research, Stats & Economics (MORSE) - Uni of Warwick</div>
     </div>
 
     <div class="sidebar" id="mySidebar">
         <div class="close-sidebar" onclick="toggleSidebar()">✕</div>
-        <h2 style="color: var(--accent-color);">Projects</h2>
-        <div id="project-list-container"></div>
-        <div style="margin-top: 40px; border-top: 1px solid #333; padding-top: 20px;">
-            <h3>About</h3>
-            <p style="font-size: 0.9rem; color: #ccc;">Specializing in Computer Vision and Earth Observation.</p>
+        
+        <button class="menu-section-btn" onclick="openAbout()">
+            About Me <span>&rarr;</span>
+        </button>
+
+        <button class="menu-section-btn" onclick="toggleAccordion('project-list-container')">
+            Projects <span>&#9662;</span> </button>
+        <div id="project-list-container" class="menu-content">
+            </div>
+
+        <button class="menu-section-btn" onclick="toggleAccordion('contact-container')">
+            Contact / CV <span>&#9662;</span>
+        </button>
+        <div id="contact-container" class="menu-content">
+            <div class="contact-row">
+                <span class="contact-label">Email</span>
+                your.email@ucl.ac.uk
+            </div>
+            <div class="contact-row">
+                <span class="contact-label">Phone</span>
+                +44 7000 000000
+            </div>
             <br>
-            <a href="cv.pdf" class="btn" style="width: 100%; text-align: center;">Download CV</a>
+            <button class="btn" onclick="openCV()" style="width:100%">View My CV (PDF)</button>
         </div>
     </div>
 
     <div id="projectModal" class="modal-overlay">
         <div class="modal-content">
-            <span class="close-modal-btn" onclick="closeModal()">&times;</span>
+            <span class="close-modal-btn" onclick="closeAllModals()">&times;</span>
             <h2 id="modalTitle" style="margin-top:0; color: var(--accent-color);">Title</h2>
             <div id="modalBody" style="line-height: 1.6; color: #ddd;">Desc</div>
-            <div id="modalLinks" style="margin-top: 20px;"></div> </div>
+            <div id="modalLinks" style="margin-top: 20px;"></div>
+        </div>
+    </div>
+
+    <div id="aboutModal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-modal-btn" onclick="closeAllModals()">&times;</span>
+            <h2 style="color: var(--accent-color); margin-top: 0;">My Journey</h2>
+            <div style="color: #ddd; line-height: 1.8;">
+                <p>
+                    I grew up with a fascination for both the natural world and mathematics. 
+                    (Write your upbringing story here...)
+                </p>
+                <p>
+                    My academic path led me from Warwick to UCL, where I discovered that AI could be the tool to protect the planet I love.
+                </p>
+                
+                <div class="about-img-grid">
+                    <img src="https://via.placeholder.com/400x300/151922/00ffcc?text=Photo+1" class="about-img" alt="Me at Warwick">
+                    <img src="https://via.placeholder.com/400x300/151922/00ffcc?text=Photo+2" class="about-img" alt="Me doing research">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="cvModal" class="modal-overlay">
+        <div class="modal-content-wide">
+            <span class="close-modal-btn" onclick="closeAllModals()">&times;</span>
+            <h2 style="color: var(--accent-color); margin: 0 0 10px 0;">Curriculum Vitae</h2>
+            
+            <iframe id="cvFrame" src="" style="width: 100%; height: 100%; border: none; background: white;"></iframe>
+            
+            <div style="text-align: center; margin-top: 10px;">
+                <a id="cvDownloadLink" href="#" target="_blank" style="color: #888; text-decoration: underline; font-size: 0.8rem;">
+                    PDF not loading? Click here to download.
+                </a>
+            </div>
+        </div>
     </div>
 
     <script>
-        // --- 1. EDIT YOUR CONTENT HERE ---
+        // --- DATA ---
         const myProjects = [
             { 
-                lat: -1.2921, lng: 36.8219, 
-                name: "Kenya", 
-                fullName: "Kenya: Agricultural Mapping", 
-                // You can use HTML tags like <br> for new lines, <b> for bold
-                desc: "Mapping smallholder farms using Sentinel-2 to estimate crop yields. <br><br><b>Methodology:</b> Used Random Forest classifiers on multi-temporal spectral indices.", 
-                pdf: "kenya_report.pdf",       // Upload this file to GitHub
-                github: null
+                lat: -1.2921, lng: 36.8219, name: "Kenya", fullName: "Kenya: Agricultural Mapping", 
+                desc: "Mapping smallholder farms using Sentinel-2 to estimate crop yields.", 
+                pdf: "kenya_report.pdf", github: "https://github.com/yourusername/kenya-crops" 
             },
             { 
-                lat: 51.5074, lng: -0.1278, 
-                name: "UK", 
-                fullName: "Europe: Transfer Learning for Offshore Wind Power Forecasting", 
-                desc: "....", 
-                pdf: "Full Final Report.pdf",        // If you don't have one, just delete this line
-                github: null                   // Or set to null
+                lat: 51.5074, lng: -0.1278, name: "UK", fullName: "UK: Urban Heat Islands", 
+                desc: "Analyzing Land Surface Temperature (LST) variations in London.", 
+                pdf: null, github: null 
             },
-            { 
-                lat: 41.9028, lng: 12.4964, 
-                name: "Italy", 
-                fullName: "Italy: Heritage Monitoring", 
-                desc: "Using InSAR to detect ground deformation risks near ancient Roman heritage sites.", 
-                pdf: null,
-                github: null
-            },
-            { lat: -15.8267, lng: -47.9218, name: "Brazil", fullName: "Predicting Monthly Groundwater Storage Changes in the Amazon Basin: A Multi-Sensor Machine Learning Approach Using GRACE, Sentinel-1, and Ground-Based Observations", 
-             desc: "Amazon forest loss detection.", pdf: null, github: "https://github.com/DomWeisser/Multi-Scale-Groundwater-Monitoring-in-the-Amazon-Integrating-Satellite-and-In-Situ-well-data-with-ML" },
+            { lat: 41.9028, lng: 12.4964, name: "Italy", fullName: "Italy: Heritage Monitoring", desc: "InSAR for heritage sites.", pdf: null, github: null },
+            { lat: -15.8267, lng: -47.9218, name: "Brazil", fullName: "Brazil: Deforestation", desc: "Amazon forest loss detection.", pdf: null, github: null },
             { lat: 42.6977, lng: 23.3219, name: "Bulgaria", fullName: "Bulgaria: Forest Cover", desc: "Landsat change detection.", pdf: null, github: null },
             { lat: 48.2082, lng: 16.3738, name: "Austria", fullName: "Austria: Alpine Snow", desc: "MODIS snow line tracking.", pdf: null, github: null },
             { lat: 78.2232, lng: 15.6267, name: "Arctic", fullName: "Arctic: Sea Ice", desc: "CryoSat-2 altimetry.", pdf: null, github: null }
         ];
 
-        // --- UI FUNCTIONS ---
+        // --- NEW SIDEBAR LOGIC (ACCORDIONS) ---
         function toggleSidebar() { document.getElementById('mySidebar').classList.toggle('open'); }
-        const modal = document.getElementById("projectModal");
+        
+        function toggleAccordion(id) {
+            const content = document.getElementById(id);
+            // Toggle the 'show' class to slide it open/closed
+            if (content.classList.contains('show')) {
+                content.classList.remove('show');
+            } else {
+                content.classList.add('show');
+            }
+        }
 
-        function openModal(data) {
-            // 1. Set Title & Text
+        // --- MODAL SYSTEM ---
+        const projectModal = document.getElementById("projectModal");
+        const aboutModal = document.getElementById("aboutModal");
+        const cvModal = document.getElementById("cvModal");
+
+        function closeAllModals() {
+            projectModal.style.display = "none";
+            aboutModal.style.display = "none";
+            cvModal.style.display = "none";
+            try { world.controls().autoRotate = true; } catch(e){}
+        }
+
+        // 1. OPEN PROJECT
+        function openProjectModal(data) {
+            closeAllModals(); // Close others first
             document.getElementById("modalTitle").innerText = data.fullName;
             document.getElementById("modalBody").innerHTML = data.desc;
             
-            // 2. Clear previous buttons
             const linkContainer = document.getElementById("modalLinks");
             linkContainer.innerHTML = ""; 
-
-            // 3. Add PDF Button (if exists)
             if (data.pdf) {
-                const pdfBtn = document.createElement("a");
-                pdfBtn.className = "btn";
-                pdfBtn.href = data.pdf;
-                pdfBtn.target = "_blank";
-                pdfBtn.innerHTML = "📄 Read Analysis (PDF)";
-                linkContainer.appendChild(pdfBtn);
+                linkContainer.innerHTML += `<a href="${data.pdf}" target="_blank" class="btn">📄 Analysis (PDF)</a> `;
             }
-
-            // 4. Add GitHub Button (if exists)
             if (data.github) {
-                const gitBtn = document.createElement("a");
-                gitBtn.className = "btn btn-outline"; // Different style
-                gitBtn.href = data.github;
-                gitBtn.target = "_blank";
-                gitBtn.innerHTML = "💻 View Code (GitHub)";
-                linkContainer.appendChild(gitBtn);
+                linkContainer.innerHTML += `<a href="${data.github}" target="_blank" class="btn btn-outline">💻 Code (GitHub)</a>`;
             }
-
-            modal.style.display = "block";
+            
+            projectModal.style.display = "block";
+            try { world.controls().autoRotate = false; } catch(e){}
         }
 
-        function closeModal() {
-            modal.style.display = "none";
+        // 2. OPEN ABOUT
+        function openAbout() {
+            closeAllModals();
+            aboutModal.style.display = "block";
+            toggleSidebar(); // Close sidebar so we can see the modal
+            try { world.controls().autoRotate = false; } catch(e){}
         }
-        window.onclick = e => { if (e.target == modal) closeModal(); }
 
+        // 3. OPEN CV (EMBEDDED)
+        function openCV() {
+            closeAllModals();
+            // Set the PDF source dynamically
+            document.getElementById('cvFrame').src = "cv.pdf"; 
+            document.getElementById('cvDownloadLink').href = "cv.pdf";
+            
+            cvModal.style.display = "block";
+            toggleSidebar();
+            try { world.controls().autoRotate = false; } catch(e){}
+        }
+
+        window.onclick = e => { 
+            if (e.target == projectModal || e.target == aboutModal || e.target == cvModal) closeAllModals(); 
+        }
+
+        // --- POPULATE PROJECT LIST ---
         const listContainer = document.getElementById('project-list-container');
         myProjects.forEach(p => {
             const div = document.createElement('div');
             div.className = 'sidebar-project-link';
-            div.innerHTML = `<span class="sidebar-project-title">${p.name}</span><span class="sidebar-project-loc">${p.fullName}</span>`;
-            div.onclick = () => { openModal(p); };
+            div.innerHTML = `${p.fullName}`;
+            div.onclick = () => { openProjectModal(p); };
             listContainer.appendChild(div);
         });
 
@@ -180,18 +272,16 @@
             .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
             .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
             
-            // 2D DOTS
             .htmlElementsData(myProjects)
             .htmlLat('lat')
             .htmlLng('lng')
             .htmlElement(d => {
                 const el = document.createElement('div');
                 el.className = 'project-dot'; 
-                el.onclick = () => openModal(d);
+                el.onclick = () => openProjectModal(d);
                 return el;
             })
             
-            // LABELS
             .labelsData(myProjects)
             .labelLat('lat')
             .labelLng('lng')
@@ -200,12 +290,12 @@
             .labelDotRadius(0) 
             .labelColor(() => 'rgba(255, 255, 255, 0.85)')
             .labelAltitude(0.05) 
-            .onLabelClick(openModal);
+            .onLabelClick(openProjectModal);
 
         try {
-            world.controls().autoRotate = false;
+            world.controls().autoRotate = true;
             world.controls().autoRotateSpeed = 0.5;
-        } catch (err) { console.log("Rotation error ignored."); }
+        } catch (err) { }
     </script>
 </body>
 </html>
