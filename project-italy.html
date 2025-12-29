@@ -37,11 +37,14 @@
 
 <h3 class="modal-section-title">Project Overview</h3>
 <p>
-    During my time at Remote Sensing Solutions, I developed an operational forecasting system as part of the EOAgri Twin project for ESA's Destination Earth initiative. The system 
-    provides 1-6 month ahead forecasts of key agricultural indicators: Land Surface Temperature (LST), Normalised Difference 
-    Vegetation Index (NDVI), and Normalised Difference Infrared Index (NDII), which serve as inputs to a drought forecasting 
-    model for agricultural lands globally. Forecasts are generated at <strong>0.01° spatial resolution</strong> (~1km) across 
-    Italy and Kenya, providing farm-scale predictions for operational drought monitoring.
+    During my time at Remote Sensing Solutions, I developed an operational forecasting system for agricultural drought monitoring as part of the EOAgri 
+    Twin project for ESA's Destination Earth initiative. The system provides 1-6 month ahead forecasts of key agricultural indicators: Land Surface
+    Temperature (LST), Normalised Difference Vegetation Index (NDVI), and Normalised Difference Infrared Index (NDII), which serve as inputs to a drought forecasting 
+    model for agricultural lands globally. 
+</p>
+<p>
+    Forecasts are generated at <strong>0.01° spatial resolution</strong> (~1km) across Italy and Kenya, providing farm-scale predictions for operational 
+    drought monitoring.
 </p>
 
 <h3 class="modal-section-title">Core Innovation: Scenario-Based Forecasting</h3>
@@ -113,8 +116,8 @@
 <h4 class="modal-subsection-title">Spatially-Adaptive Scenario Generation</h4>
 <p>
     A critical challenge addressed by this methodology is the heterogeneity of climate conditions within each country. 
-    For example, northeastern Kenya experiences arid conditions with low precipitation variability, while southwestern Kenya 
-    has tropical patterns with high variability. Simply applying uniform scenario definitions nationwide would produce 
+    For example, southern Italy experiences arid conditions with low precipitation variability, while Northern Italy 
+    has more seasonal patterns with high variability. Simply applying uniform scenario definitions nationwide would produce 
     unrealistic scenario forecasts.
 </p>
 <p><strong>Solution: Regional Scenario Calibration</strong></p>
@@ -141,39 +144,18 @@
     Precipitation_scenario = Climatology_mean + (Climatology_std × Regional_multiplier)
 </p>
 <p>
-    This approach ensures that an "extreme dry" scenario represents genuinely extreme conditions for both arid northeastern 
-    Kenya (e.g., 5mm instead of 15mm) and wet southwestern Kenya (e.g., 80mm instead of 150mm).
-</p>
-
-<h4 class="modal-subsection-title">Spatial Resolution and Coverage</h4>
-<p>
-    Forecasts are generated at <strong>0.01° spatial resolution</strong> (~1km at the equator) exclusively over 
-    <strong>agricultural lands</strong>, identified using Copernicus Land Cover classification (cropland, herbaceous, and 
-    shrubland classes). This high-resolution, agriculture-focused approach provides actionable information for farm-scale 
-    decision-making while maintaining computational feasibility.
-</p>
-
-<h4 class="modal-subsection-title">Seasonal Considerations</h4>
-<p>
-    To optimise model performance for agricultural applications, training data is filtered to the growing season (May-October 
-    in Europe), with forecast horizon-dependent adjustments:
-</p>
-<ul>
-    <li><strong>1-month horizon:</strong> April-October targets (excludes early spring)</li>
-    <li><strong>3-6 month horizons:</strong> May-October targets (excludes spring transition)</li>
-</ul>
-<p>
-    This seasonal focus improves prediction accuracy during the critical periods for crop development while acknowledging 
-    reduced skill during winter dormancy.
+    This approach ensures that an "extreme dry" scenario represents genuinely extreme conditions for both arid southern Italy (e.g., 5mm instead of 15mm) 
+    and mountainous northern Italy (e.g., 80mm instead of 150mm).
 </p>
 
 <h3 class="modal-section-title">Model Performance</h3>
-<p><strong>Example for LST (3-month ahead, Italy):</strong></p>
+<p><strong>Example: NDVI (1-month ahead, Italy):</strong></p>
 <ul>
     <li><strong>Test R²:</strong> 0.83</li>
-    <li><strong>Test MAE:</strong> 2.5°C</li>
-    <li><strong>Spatial coverage:</strong> 270,000 agricultural pixels</li>
-    <li><strong>Scenario consistency:</strong> 85% (predictions maintain expected ordering across scenarios)</li>
+    <li><strong>Test MAE:</strong> 0.0386</li>
+    <li><strong>Model Weighting:</strong> 0.6 XGBoost, 0.4 ElasticNet</li>
+    <li><strong>Precipitation Forecast Feature Importance:</strong> 6/25</li>
+
 </ul>
 
 <div class="img-row">
