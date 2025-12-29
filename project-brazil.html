@@ -45,21 +45,55 @@
 <p>
     The project developed a machine learning framework to predict month-on-month groundwater level changes 
     using GRACE-derived regional water storage, GLDAS land surface model components, and Sentinel-1 radar backscatter. 
-    Despite limited spatial coverage (only 4 wells) and temporal extent (2019 only), the approach achieved strong predictive 
+    Despite limited spatial coverage (only 4 wells) and temporal extent (2019 only due to time constraints), the approach achieved strong predictive 
     performance (R² = 0.82), demonstrating the viability of satellite-based groundwater monitoring in tropical regions where 
     traditional well networks are sparse.
 </p>
 
-<h3 class="modal-section-title">Core Challenge: Data Scarcity</h3>
+<div class="img-row">
+    <div class="img-col">
+        <img src="https://raw.githubusercontent.com/DomWeisser/Multi-Scale-Groundwater-Monitoring-in-the-Amazon-Integrating-Satellite-and-In-Situ-well-data-with-ML/277608a94581a59c7f54984659af80fe76af55fb/Images/WhatsApp%20Image%202025-05-31%20at%2022.51.42.jpeg" 
+             alt="Amazon Groundwater Monitoring Overview" 
+             class="project-img">
+        <div class="img-caption">Figure 1: How the GRACE mission detects changes in water storage</div>
+    </div>
+</div>
+
+
+<h3 class="modal-section-title">Core Challenge: Data Scarcity and Time Constraints</h3>
 <p>
-    Due to the remoteness of the study region, only <strong>four wells</strong> provided monthly groundwater change data for 
+    Due to the remoteness of the study region, only four wells provided monthly groundwater change data for 
     2019. This sparse spatial coverage made interpolation across the region unreliable, requiring a point-based approach that 
     averaged measurements. While this represented a significant spatial simplification given the Amazon's heterogeneity, it 
     was deemed suitable for establishing proof-of-concept relationships between satellite observations and ground-based 
-    measurements in this densely forested environment given my lack of available time as well.
+    measurements in this densely forested environment given my lack of available time.
 </p>
 
 <h3 class="modal-section-title">Methodology</h3>
+
+<h4 class="modal-subsection-title">Well Data Analysis</h4>
+<p>
+    The well data represents monthly groundwater level changes, directly measured by the RIMAS monitoring network within Brazilian aquifers. Figure 2 
+    illustrates the average month-on-month change in groundwater levels across the 4 wells that fall within my region of interest. It clearly depicts the 
+    hydrological cycle, with groundwater levels rosing during the wet season with a 1-2 month lag (peaking in June), then declining throughout the dry season 
+    (reaching minimum in December).
+</p>
+
+<div class="img-row">
+    <div class="img-col">
+        <img src="https://raw.githubusercontent.com/DomWeisser/Multi-Scale-Groundwater-Monitoring-in-the-Amazon-Integrating-Satellite-and-In-Situ-well-data-with-ML/bbd121844d62f620afb6f33064937ae6f5fddbd7/Images/well_analysis%20(2).png" 
+             alt="Well Analysis" 
+             class="project-img">
+        <div class="img-caption">Figure 2: Average month-on-month groundwater levels across the 4 wells</div>
+    </div>
+    <div class="img-col">
+        <img src="https://raw.githubusercontent.com/DomWeisser/Multi-Scale-Groundwater-Monitoring-in-the-Amazon-Integrating-Satellite-and-In-Situ-well-data-with-ML/33dd6aa3a78b9723947cdfa60cf03ec2764df239/Images/grace_gwa_change_analysis%20(1).png" 
+             alt="GRACE GWA Change Analysis" 
+             class="project-img">
+        <div class="img-caption">Figure 3: GRACE Groundwater Anomaly</div>
+    </div>
+</div>
+
 
 <h4 class="modal-subsection-title">Groundwater Isolation from GRACE/GLDAS</h4>
 <p>
@@ -71,23 +105,15 @@
     GWSA = TWS - (Soil Moisture + Snow Water + Canopy Water)
 </p>
 <p>
-    Month-on-month changes in these groundwater storage anomalies were then used as the primary predictive feature.
+    Month-on-month changes in these groundwater storage anomalies were then used as a predictive feature as seen in Figure 3.
 </p>
 
 <h4 class="modal-subsection-title">Sentinel-1 Surface Conditions</h4>
 <p>
     Sentinel-1 backscatter (VV and VH polarisations) was averaged across the entire region to create point-based values 
-    consistent with the well data. These regional averages captured surface conditions related to vegetation and soil moisture 
+    consistent with the well data. These regional averages captured overall surface conditions related to vegetation and soil moisture 
     dynamics, though the spatial simplification masked the Amazon's enormous heterogeneity. VH polarisation proved particularly 
     valuable for capturing vegetation and surface water signals complementary to GRACE gravity measurements.
-</p>
-
-<h4 class="modal-subsection-title">Seasonal Pattern Capture</h4>
-<p>
-    Well data analysis revealed clear seasonal cycles: groundwater levels rose during the wet season with a 1-2 month lag 
-    (peaking in June), then declined throughout the dry season (reaching minimum in December). Sine and cosine transformations 
-    of month were included as features to model these seasonal cycles, with the sine component showing particularly strong 
-    correlation (r=0.92) to groundwater changes.
 </p>
 
 <h3 class="modal-section-title">Model Performance & Key Findings</h3>
@@ -106,24 +132,22 @@
     <li><strong>Seasonal patterns</strong> (sine/cosine month transformations) showed strong correlations but contributed 
     moderate additional predictive value beyond GRACE</li>
 </ul>
-<p>
-    Uncertainty quantification through Bayesian Ridge and bootstrap resampling produced prediction intervals of ±22 cm and 
-    ±36 cm respectively, with all observed measurements falling within these bounds. The wider bootstrap intervals reflect 
-    the additional uncertainty from the limited 12-month dataset, though the model demonstrated strong performance during 
-    critical seasonal transition periods.
-</p>
+
 
 <h3 class="modal-section-title">Conclusions & Future Potential</h3>
 <p>
     While constrained by limited spatial coverage and only a single year of observations, the results demonstrate the 
-    <strong>strong potential for satellite-based groundwater monitoring in data-scarce tropical regions</strong>. The 
+    potential for satellite-based groundwater monitoring in data-scarce tropical regions. The 
     dominance of GRACE in feature importance validates the physical basis of the approach, while the complementary value 
     of Sentinel-1 suggests multi-sensor fusion can improve predictions beyond gravity measurements alone.
 </p>
 <p>
     Future work could expand this proof-of-concept by: (1) incorporating expanded well networks and multi-year time series 
-    to improve model robustness, (2) utilizing original 10m Sentinel-1 resolution with spatial interpolation of groundwater 
+    to improve model robustness, (2) utilising original 10m Sentinel-1 resolution with spatial interpolation of groundwater 
     data to better capture the Amazon's spatial heterogeneity, and (3) exploring the approach in other data-scarce regions 
     where satellite observations could supplement sparse ground networks. This research demonstrates that even with minimal 
     ground truth data, satellite observations can provide valuable insights into groundwater dynamics in remote regions.
+</p>
+<p>
+    Find my full analysis in GitHub below
 </p>
