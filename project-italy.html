@@ -1,17 +1,39 @@
-<h2 style="color:var(--accent-color); margin-bottom:20px;">Operational Drought Forecasting with Precipitation Scenarios for Agricultural Monitoring</h2>
+<style>
+    /* Main section headings in green */
+    .modal-section-title {
+        color: #4CAF50; /* Green */
+        font-size: 1.3rem;
+        margin-top: 20px;
+        margin-bottom: 10px;
+    }
+    
+    /* Subsection headings in gold/amber */
+    .modal-subsection-title {
+        color: #FFA726; /* Amber/Orange */
+        font-size: 1.1rem;
+        margin-top: 15px;
+        margin-bottom: 8px;
+    }
+    
+    /* Make all paragraphs slightly smaller */
+    p, li {
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+</style>
 
 <h3 class="modal-section-title">Project Overview</h3>
 <p>
-    During my work at Remote Sensing Solutions, I developed an operational drought forecasting system as part of the 
-    <strong>EOAgri Twin project</strong> for ESA's Destination Earth initiative. The system provides 1-6 month ahead forecasts 
-    of key agricultural indicators—Land Surface Temperature (LST), Normalized Difference Vegetation Index (NDVI), and 
-    Normalized Difference Infrared Index (NDII)—which serve as inputs to a comprehensive drought monitoring model for 
-    agricultural lands across Europe and Africa.
+    During my time at Remote Sensing Solutions, I developed an operational forecasting system as part of the EOAgri Twin project for ESA's Destination Earth initiative. The system 
+    provides 1-6 month ahead forecasts of key agricultural indicators: Land Surface Temperature (LST), Normalised Difference 
+    Vegetation Index (NDVI), and Normalised Difference Infrared Index (NDII), which serve as inputs to a drought forecasting 
+    model for agricultural lands globally. Forecasts are generated at <strong>0.01° spatial resolution</strong> (~1km) across 
+    Italy and Kenya, providing farm-scale predictions for operational drought monitoring.
 </p>
 
 <h3 class="modal-section-title">Core Innovation: Scenario-Based Forecasting</h3>
 <p>
-    The key innovation of this system is its ability to generate <strong>"what-if" scenario forecasts</strong> that answer 
+    The key innovation of this system is its ability to generate <strong>"what-if"</strong> scenario forecasts that have the ability to answer 
     critical questions for agricultural decision-makers:
 </p>
 <ul>
@@ -19,7 +41,7 @@
     <li>How will crop stress evolve under extreme wet conditions?</li>
     <li>What is the range of possible outcomes given precipitation uncertainty?</li>
 </ul>
-<p>This scenario-based approach provides five distinct forecasts per indicator:</p>
+<p>This scenario-based approach provides five distinct forecasts per indicator and horizon:</p>
 <ul>
     <li><strong>Extreme Dry:</strong> Representing severe drought conditions (5th percentile precipitation)</li>
     <li><strong>Dry:</strong> Below-average precipitation (20th percentile)</li>
@@ -30,22 +52,22 @@
 
 <h3 class="modal-section-title">Methodology</h3>
 
-<h4 style="color:var(--accent-color); margin-top:15px;">Model Architecture</h4>
+<h4 class="modal-subsection-title">Model Architecture</h4>
 <p>
-    The forecasting system employs an <strong>ensemble modeling framework</strong> combining XGBoost and ElasticNet regression, 
+    The forecasting system employs an ensemble modeling framework combining XGBoost and ElasticNet regression, 
     with optimal weights determined individually for each:
 </p>
 <ul>
-    <li>Geographic region (Italy, Germany, Kenya)</li>
+    <li>Geographic region (Italy, Kenya)</li>
     <li>Target variable (LST, NDVI, NDII)</li>
     <li>Forecast horizon (1-6 months ahead)</li>
 </ul>
 <p>
-    This results in 18 specialized ensemble models, each tuned to the specific spatiotemporal characteristics of its prediction task.
+    This results in 18 specialised ensemble models, each tuned to the specific spatiotemporal characteristics of its prediction task.
 </p>
 
-<h4 style="color:var(--accent-color); margin-top:15px;">Input Features</h4>
-<p>The models utilize two main feature categories:</p>
+<h4 class="modal-subsection-title">Input Features</h4>
+<p>The models utilise two main feature categories:</p>
 <ul>
     <li>
         <strong>Historical observations (lagged 1, 2, 3, 6, and 12 months):</strong>
@@ -64,7 +86,7 @@
     </li>
 </ul>
 
-<h4 style="color:var(--accent-color); margin-top:15px;">Spatially-Adaptive Scenario Generation</h4>
+<h4 class="modal-subsection-title">Spatially-Adaptive Scenario Generation</h4>
 <p>
     A critical challenge addressed by this methodology is the heterogeneity of climate conditions within each country. 
     For example, northeastern Kenya experiences arid conditions with low precipitation variability, while southwestern Kenya 
@@ -91,7 +113,7 @@
         <strong>Operational application:</strong> During forecasting, precipitation scenarios for any location are computed as:
     </li>
 </ol>
-<p style="background: rgba(255,255,255,0.1); padding: 10px; border-left: 3px solid var(--accent-color); font-family: monospace; font-size: 0.85rem; margin-left: 20px;">
+<p style="background: rgba(255,255,255,0.1); padding: 10px; border-left: 3px solid #4CAF50; font-family: monospace; font-size: 0.85rem; margin-left: 20px;">
     Precipitation_scenario = Climatology_mean + (Climatology_std × Regional_multiplier)
 </p>
 <p>
@@ -99,7 +121,7 @@
     Kenya (e.g., 5mm instead of 15mm) and wet southwestern Kenya (e.g., 80mm instead of 150mm).
 </p>
 
-<h4 style="color:var(--accent-color); margin-top:15px;">Spatial Resolution and Coverage</h4>
+<h4 class="modal-subsection-title">Spatial Resolution and Coverage</h4>
 <p>
     Forecasts are generated at <strong>0.01° spatial resolution</strong> (~1km at the equator) exclusively over 
     <strong>agricultural lands</strong>, identified using Copernicus Land Cover classification (cropland, herbaceous, and 
@@ -113,7 +135,7 @@
     <li>Kenya: [Coverage TBD]</li>
 </ul>
 
-<h4 style="color:var(--accent-color); margin-top:15px;">Seasonal Considerations</h4>
+<h4 class="modal-subsection-title">Seasonal Considerations</h4>
 <p>
     To optimize model performance for agricultural applications, training data is filtered to the growing season (May-October 
     in Europe), with forecast horizon-dependent adjustments:
@@ -134,13 +156,6 @@
     <li><strong>Test MAE:</strong> 2.5°C</li>
     <li><strong>Spatial coverage:</strong> 270,000 agricultural pixels</li>
     <li><strong>Scenario consistency:</strong> 85% (predictions maintain expected ordering across scenarios)</li>
-</ul>
-<p><strong>Key findings:</strong></p>
-<ul>
-    <li>Ensemble models consistently outperform individual model components</li>
-    <li>Future precipitation scenarios rank as the 2nd most important feature (18% importance)</li>
-    <li>Forecast skill decreases gracefully with increasing horizon (R² = 0.88 at 1-month → 0.78 at 6-months)</li>
-    <li>Regional scenario multipliers successfully capture spatial climate heterogeneity</li>
 </ul>
 
 <h3 class="modal-section-title">Operational Deployment</h3>
