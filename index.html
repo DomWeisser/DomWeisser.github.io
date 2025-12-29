@@ -219,7 +219,7 @@
                 desc: "My dissertation for my MSc at UCL focused on ... ", 
                 pdf: "Full Final Report.pdf", github: null 
             },
-            { lat: 41.9028, lng: 12.4964, name: "Italy", fullName: "EOAgriTwin", desc: "Drought Forecasting", pdf: null, github: null },
+            { lat: 41.9028, lng: 12.4964, name: "Italy", fullName: "EOAgriTwin", desc: "Loading...", externalFile: "project-italy.html", pdf: null, github: null },
             { lat: -15.8267, lng: -47.9218, name: "Brazil", fullName: "Amazon: Groundwater Monitoring using Satellite imagery", desc: "Proof of Concept to quantify the change in groundwater levels using Satellite imagery.", pdf: null, github: "https://github.com/DomWeisser/Multi-Scale-Groundwater-Monitoring-in-the-Amazon-Integrating-Satellite-and-In-Situ-well-data-with-ML" },
             { lat: 42.6977, lng: 23.3219, name: "Bulgaria", fullName: "CarbComply", desc: "SOC Modelling", pdf: null, github: null },
             { lat: 48.2082, lng: 16.3738, name: "Austria", fullName: "CarbComply", desc: "SOC Modelling", pdf: null, github: null },
@@ -252,18 +252,37 @@
 
         // 1. OPEN PROJECT
         function openProjectModal(data) {
-            closeAllModals(); // Close others first
+            closeAllModals(); 
             document.getElementById("modalTitle").innerText = data.fullName;
-            document.getElementById("modalBody").innerHTML = data.desc;
+            const body = document.getElementById("modalBody");
             
+            // 1. Check if we need to load an external file
+            if (data.externalFile) {
+                body.innerHTML = '<div style="padding:20px; text-align:center;">Loading content...</div>';
+                
+                // Fetch the separate file
+                fetch(data.externalFile)
+                    .then(response => {
+                        if (!response.ok) throw new Error("Network response was not ok");
+                        return response.text();
+                    })
+                    .then(html => {
+                        body.innerHTML = html; // Inject the loaded text
+                    })
+                    .catch(error => {
+                        body.innerText = "Error loading project details. Please check your connection.";
+                        console.error('Error:', error);
+                    });
+            } else {
+                // Fallback for projects that don't have separate files
+                body.innerHTML = data.desc;
+            }
+            
+            // 2. Setup Buttons
             const linkContainer = document.getElementById("modalLinks");
             linkContainer.innerHTML = ""; 
-            if (data.pdf) {
-                linkContainer.innerHTML += `<a href="${data.pdf}" target="_blank" class="btn">📄 Analysis (PDF)</a> `;
-            }
-            if (data.github) {
-                linkContainer.innerHTML += `<a href="${data.github}" target="_blank" class="btn btn-outline">💻 Code (GitHub)</a>`;
-            }
+            if (data.pdf) linkContainer.innerHTML += `<a href="${data.pdf}" target="_blank" class="btn">📄 Analysis (PDF)</a> `;
+            if (data.github) linkContainer.innerHTML += `<a href="${data.github}" target="_blank" class="btn btn-outline">💻 Code (GitHub)</a>`;
             
             projectModal.style.display = "block";
             try { world.controls().autoRotate = false; } catch(e){}
