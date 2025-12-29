@@ -1,0 +1,104 @@
+<h3 class="modal-section-title">Project Overview</h3>
+<p>
+    During my work at Remote Sensing Solutions, I developed an operational drought forecasting system as part of the 
+    <strong>EOAgri Twin project</strong> for ESA's Destination Earth initiative. The system provides 1-6 month ahead forecasts 
+    of key agricultural indicators—Land Surface Temperature (LST), Normalized Difference Vegetation Index (NDVI), and 
+    Normalized Difference Infrared Index (NDII)—which serve as inputs to a comprehensive drought monitoring model for 
+    agricultural lands across Europe and Africa.
+</p>
+
+<h3 class="modal-section-title">Core Innovation: Scenario-Based Forecasting</h3>
+<p>
+    The key innovation of this system is its ability to generate "what-if" scenario forecasts that answer critical questions 
+    for agricultural decision-makers:
+</p>
+<ul>
+    <li>What will vegetation health look like in 3 months if we experience drought conditions?</li>
+    <li>How will crop stress evolve under extreme wet conditions?</li>
+    <li>What is the range of possible outcomes given precipitation uncertainty?</li>
+</ul>
+<p>This scenario-based approach provides five distinct forecasts per indicator:</p>
+<ul>
+    <li><strong>Extreme Dry:</strong> Representing severe drought conditions (5th percentile precipitation)</li>
+    <li><strong>Dry:</strong> Below-average precipitation (20th percentile)</li>
+    <li><strong>Baseline:</strong> Climatological average precipitation</li>
+    <li><strong>Wet:</strong> Above-average precipitation (80th percentile)</li>
+    <li><strong>Extreme Wet:</strong> Flood-risk conditions (95th percentile)</li>
+</ul>
+
+<h3 class="modal-section-title">Methodology & Model Architecture</h3>
+<p>
+    The forecasting system employs an ensemble modeling framework combining <strong>XGBoost</strong> and <strong>ElasticNet regression</strong>, 
+    with optimal weights determined individually for each:
+</p>
+<ul>
+    <li>Geographic region (Italy, Germany, Kenya)</li>
+    <li>Target variable (LST, NDVI, NDII)</li>
+    <li>Forecast horizon (1-6 months ahead)</li>
+</ul>
+<p>
+    This results in 18 specialized ensemble models, each tuned to the specific spatiotemporal characteristics of its prediction task.
+</p>
+
+<h4 style="color:var(--accent-color); margin-top:15px;">Input Features</h4>
+<p>The models utilize two main feature categories:</p>
+<ul>
+    <li><strong>Historical observations (lagged 1-12 months):</strong> Target variable values, Precipitation totals, Rolling means and standard deviations.</li>
+    <li><strong>Future precipitation scenarios:</strong> Location-specific monthly climatology (2001-2022) scaled by regional scenario multipliers.</li>
+</ul>
+
+<h3 class="modal-section-title">Spatially-Adaptive Scenario Generation</h3>
+<p>
+    A critical challenge addressed by this methodology is the heterogeneity of climate conditions within each country. 
+    Simply applying uniform scenario definitions nationwide would produce unrealistic forecasts.
+</p>
+<p><strong>Solution: Regional Scenario Calibration</strong></p>
+<ul>
+    <li><strong>Stratified spatial sampling:</strong> Each country is divided into 1° × 1° grid cells, with 5 representative training locations selected per cell.</li>
+    <li><strong>Location-specific distributions:</strong> Monthly precipitation climatology is modeled using gamma distributions to account for positive-skewed data.</li>
+    <li><strong>Regional scenario multipliers:</strong> Scenario thresholds are calculated for each location, then averaged within each 1° × 1° region.</li>
+</ul>
+<p style="background: rgba(255,255,255,0.1); padding: 10px; border-left: 3px solid var(--accent-color); font-family: monospace; font-size: 0.85rem;">
+    Precipitation_scenario = Climatology_mean + (Climatology_std × Regional_multiplier)
+</p>
+<p>
+    This approach ensures that an "extreme dry" scenario represents genuinely extreme conditions for both arid zones (e.g., 5mm) and wet zones (e.g., 80mm).
+</p>
+
+<h3 class="modal-section-title">Spatial Resolution and Coverage</h3>
+<p>
+    Forecasts are generated at <strong>0.01° spatial resolution (~1km)</strong> exclusively over agricultural lands, identified using 
+    Copernicus Land Cover classification. This high-resolution approach provides actionable information for farm-scale decision-making.
+</p>
+<p><strong>Current operational coverage:</strong></p>
+<ul>
+    <li>Italy: ~270,000 agricultural pixels</li>
+    <li>Germany: [Coverage TBD]</li>
+    <li>Kenya: [Coverage TBD]</li>
+</ul>
+
+<h3 class="modal-section-title">Seasonal Considerations</h3>
+<p>
+    Training data is filtered to the growing season (May-October in Europe), with forecast horizon-dependent adjustments 
+    to optimize prediction accuracy during critical crop development periods.
+</p>
+
+<h3 class="modal-section-title">Model Performance</h3>
+<p><strong>Example for LST (3-month ahead, Italy):</strong></p>
+<ul>
+    <li><strong>Test R²:</strong> 0.83</li>
+    <li><strong>Test MAE:</strong> 2.5°C</li>
+    <li><strong>Scenario consistency:</strong> 85% (predictions maintain expected ordering across scenarios)</li>
+</ul>
+<p><strong>Key findings:</strong></p>
+<ul>
+    <li>Ensemble models consistently outperform individual components.</li>
+    <li>Future precipitation scenarios rank as the 2nd most important feature (18% importance).</li>
+    <li>Forecast skill decreases gracefully with increasing horizon (R² = 0.88 at 1-month → 0.78 at 6-months).</li>
+</ul>
+
+<h3 class="modal-section-title">Operational Deployment</h3>
+<p>
+    The system generates monthly operational forecasts as multi-band GeoTIFF rasters for seamless integration into the EOAgri Twin platform, providing 
+    five scenario forecasts per indicator with spatial uncertainty quantification (±1σ bounds).
+</p>
