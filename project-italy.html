@@ -2,7 +2,7 @@
     /* Main section headings in green */
     .modal-section-title {
         color: #4CAF50; /* Green */
-        font-size: 1.3rem;
+        font-size: 1.2rem;
         margin-top: 20px;
         margin-bottom: 10px;
     }
@@ -10,14 +10,14 @@
     /* Subsection headings in gold/amber */
     .modal-subsection-title {
         color: #FFA726; /* Amber/Orange */
-        font-size: 1.1rem;
+        font-size: 0.9rem;
         margin-top: 15px;
         margin-bottom: 8px;
     }
     
     /* Make all paragraphs slightly smaller */
     p, li {
-        font-size: 0.9rem;
+        font-size: 0.8rem;
         line-height: 1.6;
     }
 </style>
@@ -34,7 +34,7 @@
 <h3 class="modal-section-title">Core Innovation: Scenario-Based Forecasting</h3>
 <p>
     The key innovation of this system is its ability to generate <strong>"what-if"</strong> scenario forecasts that have the ability to answer 
-    critical questions for agricultural decision-makers:
+    critical questions for agricultural decision-makers such as:
 </p>
 <ul>
     <li>What will vegetation health look like in 3 months if we experience drought conditions?</li>
@@ -45,9 +45,9 @@
 <ul>
     <li><strong>Extreme Dry:</strong> Representing severe drought conditions (5th percentile precipitation)</li>
     <li><strong>Dry:</strong> Below-average precipitation (20th percentile)</li>
-    <li><strong>Baseline:</strong> Climatological average precipitation</li>
+    <li><strong>Baseline:</strong> Forecast based on the climatological average precipitation</li>
     <li><strong>Wet:</strong> Above-average precipitation (80th percentile)</li>
-    <li><strong>Extreme Wet:</strong> Flood-risk conditions (95th percentile)</li>
+    <li><strong>Extreme Wet:</strong> Extreme high precipitation conditions (95th percentile)</li>
 </ul>
 
 <h3 class="modal-section-title">Methodology</h3>
@@ -91,7 +91,7 @@
     A critical challenge addressed by this methodology is the heterogeneity of climate conditions within each country. 
     For example, northeastern Kenya experiences arid conditions with low precipitation variability, while southwestern Kenya 
     has tropical patterns with high variability. Simply applying uniform scenario definitions nationwide would produce 
-    unrealistic forecasts.
+    unrealistic scenario forecasts.
 </p>
 <p><strong>Solution: Regional Scenario Calibration</strong></p>
 <ol>
@@ -101,7 +101,7 @@
     </li>
     <li>
         <strong>Location-specific distributions:</strong> For each training location, monthly precipitation climatology 
-        (2001-2022, N=20-22 years) is converted to standardized units and modeled using gamma distributions to account for 
+        (2001-2022) is converted to standardised units and modeled using gamma distributions to account for 
         the positive-skewed nature of precipitation data.
     </li>
     <li>
@@ -128,16 +128,10 @@
     shrubland classes). This high-resolution, agriculture-focused approach provides actionable information for farm-scale 
     decision-making while maintaining computational feasibility.
 </p>
-<p><strong>Current operational coverage:</strong></p>
-<ul>
-    <li>Italy: ~270,000 agricultural pixels</li>
-    <li>Germany: [Coverage TBD]</li>
-    <li>Kenya: [Coverage TBD]</li>
-</ul>
 
 <h4 class="modal-subsection-title">Seasonal Considerations</h4>
 <p>
-    To optimize model performance for agricultural applications, training data is filtered to the growing season (May-October 
+    To optimise model performance for agricultural applications, training data is filtered to the growing season (May-October 
     in Europe), with forecast horizon-dependent adjustments:
 </p>
 <ul>
