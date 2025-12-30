@@ -1,0 +1,129 @@
+<style>
+    /* --- EXISTING STYLES --- */
+    .modal-section-title { color: #00ffcc; font-size: 1.2rem; margin-top: 25px; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+    .modal-subsection-title { color: #5EEAD4; font-size: 0.9rem; margin-top: 15px; margin-bottom: 8px; font-weight: bold; }
+    p, li { font-size: 0.85rem; line-height: 1.6; color: #ddd; }
+    strong { color: #fff; }
+
+    /* --- NEW IMAGE STYLES --- */
+    .img-row {
+        display: flex;
+        gap: 15px; /* Space between images */
+        margin: 20px 0;
+        align-items: flex-start;
+    }
+    .img-col {
+        flex: 1; /* Each column takes equal width */
+        text-align: center;
+    }
+    .project-img {
+        width: 100%;
+        height: auto;
+        border-radius: 4px;
+        border: 1px solid #444;
+        transition: transform 0.2s;
+    }
+    .project-img:hover {
+        transform: scale(1.02);
+        border-color: #00ffcc;
+    }
+    .img-caption {
+        font-size: 0.75rem;
+        color: #888;
+        margin-top: 5px;
+        font-style: italic;
+    }
+</style>
+
+<h3 class="modal-section-title">Project Overview</h3>
+<p>
+    During my time at Remote Sensing Solutions I developed a model to predict soil organic carbon (SOC) content in agricultural lands in Austria and Bulgaria
+    using Sentinel-2 spectral data. SOC is a critical indicator of soil health, agricultural productivity, and carbon sequestration potential, yet traditional 
+    field sampling is expensive, time consuming and spatially limited. By leveraging freely available satellite imagery from Sentinel-2, this approach demonstrates the 
+    potential for scalable, cost-effective SOC mapping across large agricultural regions.
+</p>
+<p>
+    Using LUCAS soil survey data from Austria and Bavaria (131 field samples), I integrated spectral bands 
+    and derived vegetation indices as my input features to predict SOC content. However given the limited dataset size, the best model achieved only 
+    moderate predictive performance (R² = 0.21, RMSE = 5.5 g C/kg), however proof-of-concept for satellite-based 
+    SOC monitoring in European agricultural systems.
+</p>
+
+<h3 class="modal-section-title">Methodology</h3>
+
+<h4 class="modal-subsection-title">Feature Engineering from Satellite Imagery</h4>
+<p>
+    Utilising <strong>Sentinel-2 multispectral data</strong> as the input, I extracted both raw 
+    spectral bands (blue, green, red, NIR, SWIR) as well as derived spectral indices (NDVI, BI) that capture soil and vegetation properties:
+</p>
+<ul>
+    <li><strong>NDVI</strong> (Normalised Difference Vegetation Index): Vegetation health and biomass</li>
+    <li><strong>NBR2</strong> (Normalised Burn Ratio 2): Soil moisture sensitivity</li>
+    <li><strong>BSI</strong> (Bare Soil Index): Bare soil exposure</li>
+</ul>
+<p>
+    Feature importance analysis revealed that <strong>near-infrared bands (lnir, nir) and blue reflectance</strong> 
+    dominated predictive performance (50% combined importance), suggesting that soil moisture and organic matter 
+    absorption features in these spectral regions are most strongly related to SOC content.
+</p>
+
+<h4 class="modal-subsection-title">Statistical Optimisation for Limited Data</h4>
+<p>
+    To maximize performance from a small dataset (131 samples), I implemented several statistical enhancements:
+</p>
+<ul>
+    <li>
+        <strong>Box-Cox transformation</strong> of the target variable reduced skewness from 0.92 to 0.05, creating 
+        a more Gaussian distribution suitable for regression models
+    </li>
+    <li>
+        <strong>Sample weighting</strong> emphasised extreme SOC values (high and low) to improve model sensitivity 
+        across the full range of soil carbon content
+    </li>
+    <li>
+        <strong>Ensemble modeling</strong> combined 3 regression algorithms (Ridge Regression 
+        Random Forest, XGBoost) with 5-fold cross-validation to improve generalisation and reduce overfitting risk
+    </li>
+</ul>
+
+<h3 class="modal-section-title">Results</h3>
+<p>
+    The <strong>Ridge regression model</strong> achieved cross-validation R² of 0.21 with RMSE of 5.5 g C/kg and 
+    MAE of 4.2 g C/kg. While this represents moderate predictive performance, it demonstrates meaningful relationships 
+    between satellite observations and soil carbon content despite the small training dataset.
+</p>
+<p><strong>Feature importance rankings revealed:</strong></p>
+<ul>
+    <li><strong>Near-infrared bands dominated</strong> (lnir: 26%, nir: 9.7%), confirming that organic matter absorption 
+    features in the NIR spectrum are key predictors of SOC</li>
+    <li><strong>Blue band contributed strongly</strong> (24%), likely capturing soil brightness variations related to 
+    organic matter content</li>
+    <li><strong>Derived indices provided moderate value</strong> (NDVI: 11.3%), suggesting that raw spectral bands 
+    capture most of the SOC-related signal in agricultural soils</li>
+</ul>
+<p>
+    Tree-based models (RandomForest R² = 0.04, XGBoost R² = -0.05) significantly underperformed linear methods, 
+    indicating that complex non-linear relationships are difficult to learn reliably from this limited dataset. 
+    This suggests that the spectral-SOC relationship in agricultural soils is predominantly linear, at least at 
+    the spatial scale of LUCAS sampling points (~10-20m footprint).
+</p>
+
+<h3 class="modal-section-title">Limitations & Future Directions</h3>
+<p>
+    The <strong>primary limitation</strong> is the small dataset size (131 samples), which constrains model complexity 
+    and limits the ability to capture subtle non-linear relationships or regional variations. The moderate R² (0.21) 
+    reflects both genuine difficulty in predicting SOC from optical imagery alone (soil carbon is a subsurface property 
+    with weak surface expression) and the statistical challenges of limited training data.
+</p>
+<p>
+    <strong>Future improvements</strong> could include: (1) expanding the training dataset by incorporating additional 
+    LUCAS survey years and neighboring countries to improve model robustness, (2) integrating complementary data sources 
+    such as radar (Sentinel-1 for soil moisture), terrain (DEM-derived slope, aspect), and climate variables 
+    (temperature, precipitation) to provide additional predictive signals, and (3) implementing spatial cross-validation 
+    to better assess model performance across geographic regions and avoid spatial autocorrelation bias in validation metrics.
+</p>
+<p>
+    Despite these limitations, the project demonstrates that <strong>satellite spectral data contains meaningful information 
+    about soil organic carbon</strong> in agricultural systems, providing a foundation for scalable SOC mapping that could 
+    complement traditional field sampling for carbon monitoring and agricultural management applications.
+</p>
