@@ -60,14 +60,13 @@
 
 <h3 class="modal-section-title">Methodology</h3>
 
-<h4 class="modal-subsection-title">Feature Engineering from Satellite Imagery</h4>
+<h4 class="modal-subsection-title">Feature Engineering</h4>
 <p>
-    Utilising <strong>Sentinel-2 multispectral data</strong> as the input, I extracted both raw 
+    Utilising Sentinel-2 multispectral data as the input, I extracted both raw 
     spectral bands (blue, green, red, NIR, SWIR) as well as derived spectral indices (NDVI, BI) that most capture soil and vegetation properties:
 </p>
 <ul>
     <li><strong>NDVI</strong> (Normalised Difference Vegetation Index): Vegetation health and biomass</li>
-    <li><strong>NBR2</strong> (Normalised Burn Ratio 2): Soil moisture sensitivity</li>
     <li><strong>BSI</strong> (Brightness Index): Bare soil exposure</li>
 </ul>
 
@@ -93,42 +92,21 @@
 
 <h3 class="modal-section-title">Results</h3>
 <p>
-    The <strong>Ridge regression model</strong> achieved cross-validation R² of 0.21 with RMSE of 5.5 g C/kg and 
-    MAE of 4.2 g C/kg. While this represents moderate predictive performance, it demonstrates meaningful relationships 
-    between satellite observations and soil carbon content despite the small training dataset.
+    The pure Ridge regression model achieved the best results on the Austrian dataset, achieving a cross-validation R² of 0.21 with RMSE of 5.5 g C/kg and 
+    MAE of 4.2 g C/kg. While this represents moderate predictive performance, this is in line with similar studies and the feature imporance demonstrated 
+    meaningful relationships between satellite observations and soil carbon content which can be useful in more detailed, further studies.
 </p>
-<p><strong>Feature importance rankings revealed:</strong></p>
+<p>Feature importance rankings revealed:</p>
 <ul>
     <li><strong>Near-infrared bands dominated</strong> (lnir: 26%, nir: 9.7%), confirming that organic matter absorption 
     features in the NIR spectrum are key predictors of SOC</li>
-    <li><strong>Blue band contributed strongly</strong> (24%), likely capturing soil brightness variations related to 
+    <li><strong>Blue band outperformed Red and Green bands</strong> (24%, 11.6%, 8%), likely capturing soil brightness variations related to 
     organic matter content</li>
-    <li><strong>Derived indices provided moderate value</strong> (NDVI: 11.3%), suggesting that raw spectral bands 
+    <li><strong>Derived indices provided moderate value</strong> (NDVI: 11.3%, BI: 0.6%), suggesting that raw spectral bands 
     capture most of the SOC-related signal in agricultural soils</li>
 </ul>
 <p>
     Tree-based models (RandomForest R² = 0.04, XGBoost R² = -0.05) significantly underperformed linear methods, 
-    indicating that complex non-linear relationships are difficult to learn reliably from this limited dataset. 
-    This suggests that the spectral-SOC relationship in agricultural soils is predominantly linear, at least at 
-    the spatial scale of LUCAS sampling points (~10-20m footprint).
-</p>
-
-<h3 class="modal-section-title">Limitations & Future Directions</h3>
-<p>
-    The <strong>primary limitation</strong> is the small dataset size (131 samples), which constrains model complexity 
-    and limits the ability to capture subtle non-linear relationships or regional variations. The moderate R² (0.21) 
-    reflects both genuine difficulty in predicting SOC from optical imagery alone (soil carbon is a subsurface property 
-    with weak surface expression) and the statistical challenges of limited training data.
-</p>
-<p>
-    <strong>Future improvements</strong> could include: (1) expanding the training dataset by incorporating additional 
-    LUCAS survey years and neighboring countries to improve model robustness, (2) integrating complementary data sources 
-    such as radar (Sentinel-1 for soil moisture), terrain (DEM-derived slope, aspect), and climate variables 
-    (temperature, precipitation) to provide additional predictive signals, and (3) implementing spatial cross-validation 
-    to better assess model performance across geographic regions and avoid spatial autocorrelation bias in validation metrics.
-</p>
-<p>
-    Despite these limitations, the project demonstrates that <strong>satellite spectral data contains meaningful information 
-    about soil organic carbon</strong> in agricultural systems, providing a foundation for scalable SOC mapping that could 
-    complement traditional field sampling for carbon monitoring and agricultural management applications.
+    indicating that complex non-linear relationships are difficult to learn reliably with this limited dataset. 
+    
 </p>
