@@ -104,10 +104,11 @@
         </ul>
     </li>
     <li>
-        <strong> Future Precipitation (Driving the "What-If" logic):</strong>
+        <strong> Future Precipitation - Horizon Dependent (Driving the "What-If" logic):</strong>
         <ul style="margin-top:5px; color: #ccc;">
-            <li>Baseline: Average monthly rainfall per location from historical data (2001-2022).</li>
-            <li>Scenario Precipitation: The future precipitation baseline is scaled by regional multipliers to simulate specific drought or wet conditions.</li>
+            <li>Baseline: The historical average monthly rainfall per location (2001-2022) aggregated for the prediction window.</li>
+            <li>Scenario Precipitation: To simulate specific conditions (e.g., Extreme Dry), this horizon-specific baseline value is scaled by the corresponding 
+                <strong>Regional Scenario Multiplier</strong>.</li>
         </ul>
     </li>
 </ul>
@@ -116,18 +117,18 @@
 <p>
     Since the models rely on "Regional Multipliers" to define future scenarios, ensuring these values are physically 
     realistic across diverse landscapes is critical. A major challenge is climatic heterogeneity: for example, 
-    <strong>Southern Italy</strong> experiences arid conditions with low variability, while <strong>Northern Italy</strong> 
-    has seasonal patterns with high fluctuations. Applying a uniform definition of "drought" nationwide would produce 
+    <strong>Southern Italy</strong> experiences arid conditions with consistent precipitation per month, while <strong>Northern Italy</strong> 
+    has seasonal patterns with high precipitation fluctuations per month. Applying a uniform multiplier of "drought" nationwide would produce 
     unrealistic forecasts.
 </p>
-<p><strong>Solution: Regional Scenario Calibration</strong></p>
+<p><strong>Solution: Regional Scenario Multipliers</strong></p>
 <ol>
     <li>
-        <strong>Stratified spatial sampling:</strong> Each country is divided into 1° × 1° grid cells, with 5 representative 
-        training locations selected per cell to ensure geographic coverage while maintaining computational efficiency.
+        <strong>Stratified spatial sampling:</strong> Each country is divided into 1° × 1° grid cells, with 5 locations selected per cell as training data to
+        ensure geographic coverage while maintaining computational efficiency. The models are trained with these data-points as the training set.
     </li>
     <li>
-        <strong>Location-specific distributions:</strong> For each training location, monthly precipitation climatology 
+        <strong>Location-specific distributions:</strong> For each training location, average monthly precipitation and std monthly precipitation 
         (2001-2022) is converted to standardised units and modeled using gamma distributions to account for 
         the positive-skewed nature of precipitation data.
     </li>
