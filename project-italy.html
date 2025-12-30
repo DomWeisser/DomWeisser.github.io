@@ -37,43 +37,43 @@
 
 <h3 class="modal-section-title">Project Overview</h3>
 <p>
-    During my time at Remote Sensing Solutions, I developed an operational forecasting system for agricultural drought monitoring as part of the EOAgri 
-    Twin project for ESA's Destination Earth initiative. The system provides 1-6 month ahead forecasts of key agricultural indicators: Land Surface
-    Temperature (LST), Normalised Difference Vegetation Index (NDVI), and Normalised Difference Infrared Index (NDII), which serve as inputs to a drought forecasting 
-    model for agricultural lands globally. 
-</p>
-<p>
-    Forecasts are generated at <strong>0.01° spatial resolution</strong> (~1km) across Italy and Kenya, providing farm-scale predictions for operational 
-    drought monitoring.
+    During my time at Remote Sensing Solutions, I developed an operational scenario-based forecasting system for agricultural drought monitoring as part of the EOAgri 
+    Twin project for ESA's Destination Earth initiative. The system provides 1-6 month ahead monthly forecasts of key agricultural indicators: max Land Surface
+    Temperature (LST), max Normalised Difference Vegetation Index (NDVI), and median Normalised Difference Infrared Index (NDII) at a 0.01° spatial resolution across
+    Italy and Kenya. These forecasts then serve as direct inputs into the downstream operational drought forecasting model. However, the key innovation of this study
+    lies in generating forecasts under multiple future precipitation scenarios, providing insights that explicitly account for climatic uncertainty. 
 </p>
 
+
 <h3 class="modal-section-title">Core Innovation: Scenario-Based Forecasting</h3>
-<p>
-    The key innovation of this system is its ability to generate <strong>"what-if"</strong> scenario forecasts that have the ability to answer 
-    critical questions for agricultural decision-makers such as:
-</p>
-<ul>
-    <li>What will vegetation health look like in 3 months if we experience drought conditions?</li>
-    <li>How will crop stress evolve under extreme wet conditions?</li>
-    <li>What is the range of possible outcomes given precipitation uncertainty?</li>
-</ul>
+
 <p>This scenario-based approach provides five distinct forecasts per indicator and horizon:</p>
 <ul>
-    <li><strong>Extreme Dry:</strong> Representing severe drought conditions (5th percentile precipitation)</li>
-    <li><strong>Dry:</strong> Below-average precipitation (20th percentile)</li>
-    <li><strong>Baseline:</strong> Forecast based on the climatological average precipitation</li>
-    <li><strong>Wet:</strong> Above-average precipitation (80th percentile)</li>
-    <li><strong>Extreme Wet:</strong> Extreme high precipitation conditions (95th percentile)</li>
+    <li><strong>Extreme Dry:</strong> Representing severe drought conditions </li>
+    <li><strong>Dry:</strong> Below-average precipitation </li>
+    <li><strong>Baseline:</strong> Forecast based on the expected precipitation</li>
+    <li><strong>Wet:</strong> Above-average precipitation </li>
+    <li><strong>Extreme Wet:</strong> Extreme high precipitation conditions </li>
 </ul>
+<p>
+    The "what-if" capability allows agircultural decision-makes to assess a range of potential outcomes rather than relying on a single deterministic prediction.
+    It is designed to answer critical questions such as:
+</p>
+<ul>
+    <li>What will the vegetation health of our land look like in 3 months if we experience drought conditions?</li>
+    <li>How will crop stress evolve under extreme wet conditions?</li>
+    <li>What is the range of possible drought probabilities given precipitation uncertainty in our location?</li>
+</ul>
+
 
 <div class="img-row">
     <div class="img-col">
         <img src="italy_forecast2.png" alt="LST Forecast Map" class="project-img">
-        <div class="img-caption">Figure 1: LST Forecast June 2024 (Extreme Dry Scenario)</div>
+        <div class="img-caption">Figure 1: 1 Month ahead Forecast for LST - June 2024 (Extreme Dry Scenario)</div>
     </div>
     <div class="img-col">
         <img src="https://raw.githubusercontent.com/DomWeisser/DomWeisser.github.io/b6dfd386fea4b99c71a8d30b59dc074a310ccb77/italy_forecast1.png" alt="LST Forecast Map 2" class="project-img">
-        <div class="img-caption">Figure 2: LST Forecast June 2024 (Extreme Wet Scenario)</div>
+        <div class="img-caption">Figure 2: 1 Month ahead Forecast for LST - June 2024 (Extreme Wet Scenario)</div>
     </div>
 </div>
 
@@ -81,7 +81,7 @@
 
 <h4 class="modal-subsection-title">Model Architecture</h4>
 <p>
-    The forecasting system employs an ensemble modeling framework combining XGBoost and ElasticNet regression, 
+    The forecasting system employs an ensemble modelling framework combining XGBoost and ElasticNet regression, 
     with optimal weights determined individually for each:
 </p>
 <ul>
@@ -90,35 +90,35 @@
     <li>Forecast horizon (1-6 months ahead)</li>
 </ul>
 <p>
-    This results in 18 specialised ensemble models, each tuned to the specific spatiotemporal characteristics of its prediction task.
+    This results in 18 specialised ensemble models per country, each tuned to the specific spatiotemporal characteristics of its prediction task.
 </p>
 
 <h4 class="modal-subsection-title">Input Features</h4>
-<p>The models utilise two main feature categories:</p>
+<p> For each pixel, the input feature space combines historical observations with a projected future precipitation value:</p>
 <ul>
     <li>
-        <strong>Historical observations (lagged 1, 2, 3, 6, and 12 months):</strong>
-        <ul style="margin-top:5px;">
-            <li>Target variable values</li>
-            <li>Precipitation totals</li>
-            <li>Rolling means and standard deviations</li>
+        <strong> Historical Observations (Capturing trend & seasonality):</strong>
+        <ul style="margin-top:5px; color: #ccc;">
+            <li>Lagged variables (1, 2, 3, 6, 12 months): Target variable and monthly precipitation totals.</li>
+            <li>Statistical trends: 3, 6, 12-month rolling means and standard deviations.</li>
         </ul>
     </li>
     <li>
-        <strong>Future precipitation scenarios:</strong>
-        <ul style="margin-top:5px;">
-            <li>Location-specific monthly climatology (2001-2022)</li>
-            <li>Scaled by regional scenario multipliers</li>
+        <strong> Future Precipitation (Driving the "What-If" logic):</strong>
+        <ul style="margin-top:5px; color: #ccc;">
+            <li>Baseline: Average monthly rainfall per location from historical data (2001-2022).</li>
+            <li>Scenario Precipitation: The future precipitation baseline is scaled by regional multipliers to simulate specific drought or wet conditions.</li>
         </ul>
     </li>
 </ul>
 
 <h4 class="modal-subsection-title">Spatially-Adaptive Scenario Generation</h4>
 <p>
-    A critical challenge addressed by this methodology is the heterogeneity of climate conditions within each country. 
-    For example, southern Italy experiences arid conditions with low precipitation variability, while Northern Italy 
-    has more seasonal patterns with high variability. Simply applying uniform scenario definitions nationwide would produce 
-    unrealistic scenario forecasts.
+    Since the models rely on "Regional Multipliers" to define future scenarios, ensuring these values are physically 
+    realistic across diverse landscapes is critical. A major challenge is climatic heterogeneity: for example, 
+    <strong>Southern Italy</strong> experiences arid conditions with low variability, while <strong>Northern Italy</strong> 
+    has seasonal patterns with high fluctuations. Applying a uniform definition of "drought" nationwide would produce 
+    unrealistic forecasts.
 </p>
 <p><strong>Solution: Regional Scenario Calibration</strong></p>
 <ol>
@@ -147,6 +147,9 @@
     This approach ensures that an "extreme dry" scenario represents genuinely extreme conditions for both arid southern Italy (e.g., 5mm instead of 15mm) 
     and mountainous northern Italy (e.g., 80mm instead of 150mm).
 </p>
+
+
+
 
 <h3 class="modal-section-title">Model Performance</h3>
 <p><strong>Example: NDVI (1-month ahead, Italy):</strong></p>
