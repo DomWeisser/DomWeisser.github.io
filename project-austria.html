@@ -37,16 +37,16 @@
 
 <h3 class="modal-section-title">Project Overview</h3>
 <p>
-    During my time at Remote Sensing Solutions I developed a model to predict soil organic carbon (SOC) content in agricultural lands in Austria and Bulgaria
-    using Sentinel-2 spectral data. SOC is a critical indicator of soil health, agricultural productivity, and carbon sequestration potential, yet traditional 
-    field sampling is expensive, time consuming and spatially limited. By leveraging freely available satellite imagery from Sentinel-2, this approach demonstrates the 
-    potential for scalable, cost-effective SOC mapping across large agricultural regions.
+    During my time at Remote Sensing Solutions I developed a machine learning framework to predict soil organic carbon (SOC) content in agricultural lands across
+    Austria and Bulgaria using Sentinel-2 spectral data. SOC is a critical indicator of soil health, agricultural productivity, and carbon sequestration potential, 
+    yet traditional field sampling is expensive, time consuming and spatially limited. By leveraging freely available satellite imagery from Sentinel-2, this 
+    approach demonstrates the potential for scalable, cost-effective SOC mapping across large agricultural regions.
 </p>
 <p>
-    Using LUCAS soil survey data from Austria and Bavaria (131 field samples), I integrated spectral bands 
-    and derived vegetation indices as my input features to predict SOC content. However given the limited dataset size, the best model achieved only 
-    moderate predictive performance (R² = 0.21, RMSE = 5.5 g C/kg), however proof-of-concept for satellite-based 
-    SOC monitoring in European agricultural systems.
+    Using LUCAS soil survey data from Austria (131 field samples) as target variables, I integrated spectral bands 
+    and derived vegetation indices as my predictive features. Given the limited dataset size, the best model achieved only 
+    moderate predictive performance (R² = 0.21, RMSE = 5.5 g C/kg), consistent with similar studies using comparable methodologies and data volumnes. The resulting
+    predictions aligned well with independent SOC maps from the Cup4Soil and AI4SoilHealth projects, providing validation of the results.
 </p>
 
 <div class="img-row">
@@ -54,7 +54,7 @@
         <img src="Austria_soc.png" 
              alt="Austria SOC" 
              class="project-img">
-        <div class="img-caption">Figure 1: SOC forecast over Austrian agricultural land</div>
+        <div class="img-caption">Figure 1: SOC predictions over Austrian agricultural lands</div>
     </div>
 </div>
 
@@ -63,22 +63,18 @@
 <h4 class="modal-subsection-title">Feature Engineering from Satellite Imagery</h4>
 <p>
     Utilising <strong>Sentinel-2 multispectral data</strong> as the input, I extracted both raw 
-    spectral bands (blue, green, red, NIR, SWIR) as well as derived spectral indices (NDVI, BI) that capture soil and vegetation properties:
+    spectral bands (blue, green, red, NIR, SWIR) as well as derived spectral indices (NDVI, BI) that most capture soil and vegetation properties:
 </p>
 <ul>
     <li><strong>NDVI</strong> (Normalised Difference Vegetation Index): Vegetation health and biomass</li>
     <li><strong>NBR2</strong> (Normalised Burn Ratio 2): Soil moisture sensitivity</li>
-    <li><strong>BSI</strong> (Bare Soil Index): Bare soil exposure</li>
+    <li><strong>BSI</strong> (Brightness Index): Bare soil exposure</li>
 </ul>
-<p>
-    Feature importance analysis revealed that <strong>near-infrared bands (lnir, nir) and blue reflectance</strong> 
-    dominated predictive performance (50% combined importance), suggesting that soil moisture and organic matter 
-    absorption features in these spectral regions are most strongly related to SOC content.
-</p>
+
 
 <h4 class="modal-subsection-title">Statistical Optimisation for Limited Data</h4>
 <p>
-    To maximize performance from a small dataset (131 samples), I implemented several statistical enhancements:
+    To maximise performance from a small dataset (131 samples), I implemented several statistical enhancements:
 </p>
 <ul>
     <li>
