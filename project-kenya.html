@@ -11,10 +11,13 @@
         gap: 15px; /* Space between images */
         margin: 20px 0;
         align-items: flex-start;
+        flex-wrap: wrap; /* Important for mobile */
     }
     .img-col {
         flex: 1; /* Each column takes equal width */
         text-align: center;
+        display: flex;
+        flex-direction: column;
     }
     .project-img {
         width: 100%;
@@ -33,6 +36,23 @@
         margin-top: 5px;
         font-style: italic;
     }
+
+    /* --- FIX FOR UNEVEN IMAGES --- */
+    /* Only affects rows where you add the 'aligned-heights' class */
+    .img-row.aligned-heights .project-img {
+        width: 100%;
+        height: 400px;       /* Forces them to be the same height */
+        object-fit: cover;   /* Zooms in to fill the box without stretching */
+        object-position: center; 
+    }
+
+    /* Mobile override: let them stack naturally on phones */
+    @media (max-width: 768px) {
+        .img-row.aligned-heights .project-img {
+            height: auto;
+            max-height: 400px;
+        }
+    }
 </style>
 
 <h3 class="modal-section-title">Project Overview</h3>
@@ -40,8 +60,8 @@
     During my time at Remote Sensing Solutions, I developed an operational scenario-based forecasting system for agricultural drought monitoring as part of the EOAgri 
     Twin project for ESA's Destination Earth initiative. The system provides 1-6 month ahead monthly forecasts of key agricultural indicators: max Land Surface
     Temperature (LST), max Normalised Difference Vegetation Index (NDVI), and median Normalised Difference Infrared Index (NDII) at a 0.01° spatial resolution across
-    Italy and Kenya. These forecasts then serve as direct inputs into the downstream operational drought forecasting model. However, the key innovation of this study
-    lies in generating forecasts under multiple future precipitation scenarios, providing insights that explicitly account for climatic uncertainty. 
+    Italy and Kenya. These forecasts then serve as direct inputs into the downstream operational drought forecasting model. The key innovation of this study
+    lies in generating forecasts per month under multiple future precipitation scenarios, providing predictions that explicitly account for climatic uncertainty. 
 </p>
 
 
@@ -49,8 +69,8 @@
 
 <p>This scenario-based approach provides five distinct forecasts per indicator and horizon:</p>
 <ul>
-    <li><strong>Extreme Dry:</strong> Representing severe drought conditions </li>
-    <li><strong>Dry:</strong> Below-average precipitation </li>
+    <li><strong>Extreme Dry:</strong> Representing if there were to be severe drought conditions </li>
+    <li><strong>Dry:</strong> If there were to be below-average precipitation </li>
     <li><strong>Baseline:</strong> Forecast based on the expected precipitation</li>
     <li><strong>Wet:</strong> Above-average precipitation </li>
     <li><strong>Extreme Wet:</strong> Extreme high precipitation conditions </li>
@@ -104,60 +124,71 @@
         </ul>
     </li>
     <li>
-        <strong> Future Precipitation - Horizon Dependent (Driving the "What-If" logic):</strong>
+        <strong> Precipitation Forecast - Horizon Dependent (Driving the "What-If" logic):</strong>
         <ul style="margin-top:5px; color: #ccc;">
-            <li>Baseline: The historical average monthly rainfall per location (2001-2022) aggregated for the prediction window.</li>
-            <li>Scenario Precipitation: To simulate specific conditions (e.g., Extreme Dry), this horizon-specific baseline value is scaled by the corresponding 
-                <strong>Regional Scenario Multiplier</strong>.</li>
+            <li>Baseline: The historical average monthly rainfall per location (2001-2022) aggregated for the prediction horizon.</li>
+            <li>Scenarios: This baseline is adjusted per scenario using <strong>Regional Gamma-derived Multipliers.</strong>.</li>
         </ul>
     </li>
 </ul>
 
 <h4 class="modal-subsection-title">Spatially-Adaptive Scenario Generation</h4>
 <p>
-    Since the models rely on "Regional Multipliers" to define future scenarios, ensuring these values are physically 
-    realistic across diverse landscapes is critical. A major challenge is climatic heterogeneity: for example, 
-    <strong>Southern Italy</strong> experiences arid conditions with consistent precipitation per month, while <strong>Northern Italy</strong> 
-    has seasonal patterns with high precipitation fluctuations per month. Applying a uniform multiplier of "drought" nationwide would produce 
-    unrealistic forecasts.
+    Defining what constitutes "extreme wet" or "extreme dry" varies drastically by location. For example, NE Kenya is naturally arid with 
+    consistent rainfall per month across years, while SW Kenya is tropical with high precipitation variability per month. Applying a simple "Mean minus
+    20%" rule nationwide would fail to capture these physical differences.
 </p>
-<p><strong>Solution: Regional Scenario Multipliers</strong></p>
+
+<p><strong>Solution: The Regional Multiplier Approach</strong></p>
+<p>
+    To solve this, we developed a method that translates statistical probabilities (e.g., "a 1-in-20-year drought") 
+    into standardised "Sigma" multipliers that adapt to local climate physics:
+</p>
+
 <ol>
     <li>
-        <strong>Stratified spatial sampling:</strong> Each country is divided into 1° × 1° grid cells, with 5 locations selected per cell as training data to
-        ensure geographic coverage while maintaining computational efficiency. The models are trained with these data-points as the training set.
+        <strong>Gamma Distribution Modeling:</strong> 
+        Precipitation data is non-normal. For every training data-point, we fit Gamma distributions 
+        to the historical monthly rainfall (2001-2022). This allows us to accurately quantify the rainfall of specific percentiles 
+        (e.g., calculating exactly how many mm constitutes the "5th percentile" for this specific location and month) .
     </li>
     <li>
-        <strong>Location-specific distributions:</strong> For each training location, average monthly precipitation and std monthly precipitation 
-        (2001-2022) is converted to standardised units and modeled using gamma distributions to account for 
-        the positive-skewed nature of precipitation data.
+        <strong>Standardisation:</strong> 
+        We convert these Gamma-derived percentiles into standardised multipliers (Z-scores) relative to the local precipitation mean. 
+        <br>
+        <em style="color: #999;">(e.g., The 5th percentile is -1.8 std below the mean for this specific location and month)</em>
     </li>
     <li>
-        <strong>Regional scenario multipliers:</strong> Scenario thresholds (5th, 20th, 80th, 95th percentiles) are calculated 
-        from the fitted distributions for each location, then averaged within each 1° × 1° region to create regionally-specific 
-        scenario multipliers.
+        <strong>Regional Aggregation:</strong> 
+        To filter out noise from individual data-points, these multipliers are averaged spatially within 1° × 1° grid cells. 
+        This creates a robust "Regional Multiplier" that defines the shape of extreme rainfall scenarios for that specific area.
     </li>
     <li>
-        <strong>Operational application:</strong> During forecasting, precipitation scenarios for any location are computed as:
+        <strong>Operational Application:</strong> 
+        When generating scenario forecasts, we reconstruct the forecasted precipitation value by applying the regional multiplier to the pixel's specific 
+        precipitation mean:
     </li>
 </ol>
-<p style="background: rgba(255,255,255,0.1); padding: 10px; border-left: 3px solid #4CAF50; font-family: monospace; font-size: 0.85rem; margin-left: 20px;">
-    Precipitation_scenario = Climatology_mean + (Climatology_std × Regional_multiplier)
+
+<p style="background: rgba(255,255,255,0.05); padding: 15px; border-left: 3px solid #4CAF50; font-family: monospace; font-size: 0.9rem; margin: 15px 0 15px 10px;">
+    Precipitation_Scenario = Mean + (Std_Dev × Regional_Multiplier)
 </p>
+
 <p>
-    This approach ensures that an "extreme dry" scenario represents genuinely extreme conditions for both arid southern Italy (e.g., 5mm instead of 15mm) 
-    and mountainous northern Italy (e.g., 80mm instead of 150mm).
+    <strong>Why this matters:</strong> This ensures physical realism. A multiplier of <code>1.25 std</code> (Extreme wet) might translate to the 95th percentile
+    in the arid NE but <code> 2.05 std</code> might translate to the 95th percentile in the SW, therefore correctly identifying "extreme" conditions relative
+    to the norm.
 </p>
 
 
 
 
 <h3 class="modal-section-title">Model Performance</h3>
-<p><strong>Example: NDVI (1-month ahead, Italy):</strong></p>
+<p><strong>Example: NDII (1-month ahead, Kenya):</strong></p>
 <ul>
-    <li><strong>Test R²:</strong> 0.83</li>
-    <li><strong>Test MAE:</strong> 0.0386</li>
-    <li><strong>Model Weighting:</strong> 0.6 XGBoost, 0.4 ElasticNet</li>
+    <li><strong>Test R²:</strong> 0.82</li>
+    <li><strong>Test MAE:</strong> 0.0384</li>
+    <li><strong>Model Weighting:</strong> 0.39 XGBoost, 0.61 ElasticNet</li>
     <li><strong>Precipitation Forecast Feature Importance:</strong> 6/25</li>
 
 </ul>
@@ -175,12 +206,4 @@
 
 <h3 class="modal-section-title">Operational Deployment</h3>
 <p>
-    The system generates monthly operational forecasts as <strong>multi-band GeoTIFF rasters</strong> for seamless integration 
-    into the EOAgri Twin platform, providing:
-</p>
-<ul>
-    <li>Five scenario forecasts per indicator</li>
-    <li>Spatial uncertainty quantification (±1σ bounds)</li>
-    <li>Agricultural land masking</li>
-    <li>Standardized CRS and resolution for downstream drought modeling</li>
-</ul>
+    The system generates monthly operational forecasts for integration into the EOAgri Twin platform, available to view here: (will be available soon)
