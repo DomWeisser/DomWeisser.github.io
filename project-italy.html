@@ -41,7 +41,7 @@
     /* Only affects rows where you add the 'aligned-heights' class */
     .img-row.aligned-heights .project-img {
         width: 100%;
-        height: 350px;       /* Forces them to be the same height */
+        height: 400px;       /* Forces them to be the same height */
         object-fit: cover;   /* Zooms in to fill the box without stretching */
         object-position: center; 
     }
@@ -147,20 +147,20 @@
 
 <ol>
     <li>
-        <strong>Gamma Distribution Modeling (The Physics):</strong> 
-        Precipitation data is non-normal. For every training data-point, we fit <strong>Gamma distributions</strong> 
+        <strong>Gamma Distribution Modeling:</strong> 
+        Precipitation data is non-normal. For every training data-point, we fit Gamma distributions 
         to the historical monthly rainfall (2001-2022). This allows us to accurately quantify the rainfall of specific percentiles 
         (e.g., calculating exactly how many mm constitutes the "5th percentile" for this specific location and month) .
     </li>
     <li>
-        <strong>Standardisation (The "Sigma" Calculation):</strong> 
+        <strong>Standardisation:</strong> 
         We convert these Gamma-derived percentiles into standardised multipliers (Z-scores) relative to the local precipitation mean. 
         <br>
-        <em style="color: #999;">(e.g., The 5th percentile if -1.8 std below the mean for this specific location and month)</em>
+        <em style="color: #999;">(e.g., The 5th percentile is -1.8 std below the mean for this specific location and month)</em>
     </li>
     <li>
         <strong>Regional Aggregation:</strong> 
-        To filter out noise from individual data-points, these multipliers are averaged spatially within <strong>1° × 1° grid cells</strong>. 
+        To filter out noise from individual data-points, these multipliers are averaged spatially within 1° × 1° grid cells. 
         This creates a robust "Regional Multiplier" that defines the shape of extreme rainfall scenarios for that specific area.
     </li>
     <li>
