@@ -1,0 +1,186 @@
+<style>
+    /* --- EXISTING STYLES --- */
+    .modal-section-title { color: #00ffcc; font-size: 1.2rem; margin-top: 25px; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+    .modal-subsection-title { color: #5EEAD4; font-size: 0.9rem; margin-top: 15px; margin-bottom: 8px; font-weight: bold; }
+    p, li { font-size: 0.85rem; line-height: 1.6; color: #ddd; }
+    strong { color: #fff; }
+
+    /* --- NEW IMAGE STYLES --- */
+    .img-row {
+        display: flex;
+        gap: 15px; /* Space between images */
+        margin: 20px 0;
+        align-items: flex-start;
+    }
+    .img-col {
+        flex: 1; /* Each column takes equal width */
+        text-align: center;
+    }
+    .project-img {
+        width: 100%;
+        height: auto;
+        border-radius: 4px;
+        border: 1px solid #444;
+        transition: transform 0.2s;
+    }
+    .project-img:hover {
+        transform: scale(1.02);
+        border-color: #00ffcc;
+    }
+    .img-caption {
+        font-size: 0.75rem;
+        color: #888;
+        margin-top: 5px;
+        font-style: italic;
+    }
+</style>
+
+<h3 class="modal-section-title">Project Overview</h3>
+<p>
+    During my time at Remote Sensing Solutions, I developed an operational scenario-based forecasting system for agricultural drought monitoring as part of the EOAgri 
+    Twin project for ESA's Destination Earth initiative. The system provides 1-6 month ahead monthly forecasts of key agricultural indicators: max Land Surface
+    Temperature (LST), max Normalised Difference Vegetation Index (NDVI), and median Normalised Difference Infrared Index (NDII) at a 0.01° spatial resolution across
+    Italy and Kenya. These forecasts then serve as direct inputs into the downstream operational drought forecasting model. However, the key innovation of this study
+    lies in generating forecasts under multiple future precipitation scenarios, providing insights that explicitly account for climatic uncertainty. 
+</p>
+
+
+<h3 class="modal-section-title">Core Innovation: Scenario-Based Forecasting</h3>
+
+<p>This scenario-based approach provides five distinct forecasts per indicator and horizon:</p>
+<ul>
+    <li><strong>Extreme Dry:</strong> Representing severe drought conditions </li>
+    <li><strong>Dry:</strong> Below-average precipitation </li>
+    <li><strong>Baseline:</strong> Forecast based on the expected precipitation</li>
+    <li><strong>Wet:</strong> Above-average precipitation </li>
+    <li><strong>Extreme Wet:</strong> Extreme high precipitation conditions </li>
+</ul>
+<p>
+    The "what-if" capability allows agircultural decision-makes to assess a range of potential outcomes rather than relying on a single deterministic prediction.
+    It is designed to answer critical questions such as:
+</p>
+<ul>
+    <li>What will the vegetation health of our land look like in 3 months if we experience drought conditions?</li>
+    <li>How will crop stress evolve under extreme wet conditions?</li>
+    <li>What is the range of possible drought probabilities given precipitation uncertainty in our location?</li>
+</ul>
+
+
+<div class="img-row">
+    <div class="img-col">
+        <img src="https://github.com/DomWeisser/DomWeisser.github.io/blob/4f8b284976eef6cb1e214178ee19465d43264cbb/kenya_forecast1.png" alt="NDII Forecast Map" class="project-img">
+        <div class="img-caption">Figure 1: 1 Month ahead Forecast for NDII - October 2022 (Extreme Dry Scenario)</div>
+    </div>
+    <div class="img-col">
+        <img src="kenya_forecast2.png" alt="NDII Forecast Map 2" class="project-img">
+        <div class="img-caption">Figure 2: 1 Month ahead Forecast for NDII - October 2022 (Extreme Wet Scenario)</div>
+    </div>
+</div>
+
+<h3 class="modal-section-title">Methodology</h3>
+
+<h4 class="modal-subsection-title">Model Architecture</h4>
+<p>
+    The forecasting system employs an ensemble modelling framework combining XGBoost and ElasticNet regression, 
+    with optimal weights determined individually for each:
+</p>
+<ul>
+    <li>Geographic region (Italy, Kenya)</li>
+    <li>Target variable (LST, NDVI, NDII)</li>
+    <li>Forecast horizon (1-6 months ahead)</li>
+</ul>
+<p>
+    This results in 18 specialised ensemble models per country, each tuned to the specific spatiotemporal characteristics of its prediction task.
+</p>
+
+<h4 class="modal-subsection-title">Input Features</h4>
+<p> For each pixel, the input feature space combines historical observations with a projected future precipitation value:</p>
+<ul>
+    <li>
+        <strong> Historical Observations (Capturing trend & seasonality):</strong>
+        <ul style="margin-top:5px; color: #ccc;">
+            <li>Lagged variables (1, 2, 3, 6, 12 months): Target variable and monthly precipitation totals.</li>
+            <li>Statistical trends: 3, 6, 12-month rolling means and standard deviations.</li>
+        </ul>
+    </li>
+    <li>
+        <strong> Future Precipitation - Horizon Dependent (Driving the "What-If" logic):</strong>
+        <ul style="margin-top:5px; color: #ccc;">
+            <li>Baseline: The historical average monthly rainfall per location (2001-2022) aggregated for the prediction window.</li>
+            <li>Scenario Precipitation: To simulate specific conditions (e.g., Extreme Dry), this horizon-specific baseline value is scaled by the corresponding 
+                <strong>Regional Scenario Multiplier</strong>.</li>
+        </ul>
+    </li>
+</ul>
+
+<h4 class="modal-subsection-title">Spatially-Adaptive Scenario Generation</h4>
+<p>
+    Since the models rely on "Regional Multipliers" to define future scenarios, ensuring these values are physically 
+    realistic across diverse landscapes is critical. A major challenge is climatic heterogeneity: for example, 
+    <strong>Southern Italy</strong> experiences arid conditions with consistent precipitation per month, while <strong>Northern Italy</strong> 
+    has seasonal patterns with high precipitation fluctuations per month. Applying a uniform multiplier of "drought" nationwide would produce 
+    unrealistic forecasts.
+</p>
+<p><strong>Solution: Regional Scenario Multipliers</strong></p>
+<ol>
+    <li>
+        <strong>Stratified spatial sampling:</strong> Each country is divided into 1° × 1° grid cells, with 5 locations selected per cell as training data to
+        ensure geographic coverage while maintaining computational efficiency. The models are trained with these data-points as the training set.
+    </li>
+    <li>
+        <strong>Location-specific distributions:</strong> For each training location, average monthly precipitation and std monthly precipitation 
+        (2001-2022) is converted to standardised units and modeled using gamma distributions to account for 
+        the positive-skewed nature of precipitation data.
+    </li>
+    <li>
+        <strong>Regional scenario multipliers:</strong> Scenario thresholds (5th, 20th, 80th, 95th percentiles) are calculated 
+        from the fitted distributions for each location, then averaged within each 1° × 1° region to create regionally-specific 
+        scenario multipliers.
+    </li>
+    <li>
+        <strong>Operational application:</strong> During forecasting, precipitation scenarios for any location are computed as:
+    </li>
+</ol>
+<p style="background: rgba(255,255,255,0.1); padding: 10px; border-left: 3px solid #4CAF50; font-family: monospace; font-size: 0.85rem; margin-left: 20px;">
+    Precipitation_scenario = Climatology_mean + (Climatology_std × Regional_multiplier)
+</p>
+<p>
+    This approach ensures that an "extreme dry" scenario represents genuinely extreme conditions for both arid southern Italy (e.g., 5mm instead of 15mm) 
+    and mountainous northern Italy (e.g., 80mm instead of 150mm).
+</p>
+
+
+
+
+<h3 class="modal-section-title">Model Performance</h3>
+<p><strong>Example: NDVI (1-month ahead, Italy):</strong></p>
+<ul>
+    <li><strong>Test R²:</strong> 0.83</li>
+    <li><strong>Test MAE:</strong> 0.0386</li>
+    <li><strong>Model Weighting:</strong> 0.6 XGBoost, 0.4 ElasticNet</li>
+    <li><strong>Precipitation Forecast Feature Importance:</strong> 6/25</li>
+
+</ul>
+
+<div class="img-row">
+    <div class="img-col">
+        <img src="italy_metrics.png" alt="NDVI Metrics" class="project-img">
+        <div class="img-caption">Figure 3: NDVI Metrics - 1 Month ahead horizon</div>
+    </div>
+    <div class="img-col">
+        <img src="italy_forecast4.png" alt="NDVI Forecast Map 1" class="project-img">
+        <div class="img-caption">Figure 4: NDVI Forecast June 2024 (Extreme Dry Scenario)</div>
+    </div>
+</div>
+
+<h3 class="modal-section-title">Operational Deployment</h3>
+<p>
+    The system generates monthly operational forecasts as <strong>multi-band GeoTIFF rasters</strong> for seamless integration 
+    into the EOAgri Twin platform, providing:
+</p>
+<ul>
+    <li>Five scenario forecasts per indicator</li>
+    <li>Spatial uncertainty quantification (±1σ bounds)</li>
+    <li>Agricultural land masking</li>
+    <li>Standardized CRS and resolution for downstream drought modeling</li>
+</ul>
