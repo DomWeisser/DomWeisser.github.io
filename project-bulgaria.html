@@ -1,1 +1,112 @@
+<style>
+    /* --- EXISTING STYLES --- */
+    .modal-section-title { color: #00ffcc; font-size: 1.2rem; margin-top: 25px; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+    .modal-subsection-title { color: #5EEAD4; font-size: 0.9rem; margin-top: 15px; margin-bottom: 8px; font-weight: bold; }
+    p, li { font-size: 0.85rem; line-height: 1.6; color: #ddd; }
+    strong { color: #fff; }
 
+    /* --- NEW IMAGE STYLES --- */
+    .img-row {
+        display: flex;
+        gap: 15px; /* Space between images */
+        margin: 20px 0;
+        align-items: flex-start;
+    }
+    .img-col {
+        flex: 1; /* Each column takes equal width */
+        text-align: center;
+    }
+    .project-img {
+        width: 100%;
+        height: auto;
+        border-radius: 4px;
+        border: 1px solid #444;
+        transition: transform 0.2s;
+    }
+    .project-img:hover {
+        transform: scale(1.02);
+        border-color: #00ffcc;
+    }
+    .img-caption {
+        font-size: 0.75rem;
+        color: #888;
+        margin-top: 5px;
+        font-style: italic;
+    }
+</style>
+
+<h3 class="modal-section-title">Project Overview</h3>
+<p>
+    During my time at Remote Sensing Solutions I developed a machine learning framework to predict soil organic carbon (SOC) content in agricultural lands across
+    Austria and Bulgaria using Sentinel-2 spectral data. SOC is a critical indicator of soil health, agricultural productivity, and carbon sequestration potential, 
+    yet traditional field sampling is expensive, time consuming and spatially limited. By leveraging freely available satellite imagery from Sentinel-2, this 
+    approach demonstrates the potential for scalable, high-resolution and cost-effective SOC mapping across large agricultural regions.
+</p>
+<p>
+    Using LUCAS soil survey data from Austria (131 field samples) as ground truth, the framework integrated raw spectral bands 
+    and derived vegetation indices as predictive features. Given the limited dataset size, the best model achieved 
+    moderate predictive performance (R² = 0.21, RMSE = 5.5 g C/kg), however this is consistent with similar studies that used comparable methodologies and 
+    data volumes. Importantly, the resulting predictions aligned well with independent SOC maps from the Cup4Soil and AI4SoilHealth projects, providing 
+    external validation and demonstrating the framework's ability to capture regional SOC patterns.
+</p>
+
+<div class="img-row">
+    <div class="img-col">
+        <img src="Bulgaria_soc.png" 
+             alt="Bulgaria SOC" 
+             class="project-img">
+        <div class="img-caption">Figure 1: SOC predictions over Bulgarian agricultural lands</div>
+    </div>
+</div>
+
+<h3 class="modal-section-title">Methodology</h3>
+
+<h4 class="modal-subsection-title">Feature Engineering</h4>
+<p>
+    The framework utilised Sentinel-2 multispectral data at 10m resolution, extracting both raw spectral bands (including RGB, NIR, LNIR, SWIR and LSWIR) and 
+    derived spectral indices that capture key soil and vegetation propertiesrelevant to organic carbon content. These included NDVI, BI, NBR2, BSI and EVI 
+    however NDVI and BI were the only two used in the final model.
+
+
+<h4 class="modal-subsection-title">Statistical Optimisation for Limited Data</h4>
+<p>
+    To maximise predictive performance from our small dataset (131 samples), several statistical enhancements were implemented to improve model robustness 
+    and generalisation:
+</p>
+<ul>
+    <li>
+        <strong>Box-Cox transformation</strong> of the target variable reduced skewness from 0.92 to 0.05, transforming the right-skewed SOC distribution into an 
+        approximately Gaussian distribution better suited for regression models.
+    </li>
+    <li>
+        <strong>Sample weighting</strong> emphasised extreme SOC values (both high and low) to improve model sensitivity 
+        across the full range of soil carbon content, preventing the model from focusing solely on the most common mid-range values.
+    </li>
+    <li>
+        <strong>Ensemble modeling</strong> evaluated multiple regression algorithms (Ridge Regression, Random Forest, XGBoost) with 5-fold cross-validation
+        to improve generalisation and reduce overfitting risk inherent in small-sample modelling.
+    </li>
+</ul>
+
+<h3 class="modal-section-title">Results</h3>
+<p>
+    The Ridge regression model achieved the best results on the Austrian dataset, with cross-validation R² of 0.21 with RMSE of 5.5 g C/kg and 
+    MAE of 4.2 g C/kg. While this represents moderate predictive performance, it is consistent with published studies using similar satellite-based approaches
+    and training set sizes. More importantly, feature importance analysis revealed meaningful physical relationships between spectral bands and soil carbon content, 
+    providing insights valuable for future SOC monitoring efforts.
+</p>
+<p>Feature importance rankings revealed:</p>
+<ul>
+    <li><strong>Near-infrared bands dominated:</strong> (LNIR: 26%, 20.44%, NIR: 9.7%, 18.15% for Austria and Bulgaria respectively), confirming that organic 
+    matter absorption features in the NIR spectrum are key predictors of SOC</li>
+    <li><strong>Blue band outperformed Red and Green bands:</strong> (24%, 23.19%), (11.6%, 9.68%), (8%, 1.35%)</li>
+    <li><strong>Derived indices provided moderate value</strong> (NDVI: 11.3%, 3.3%, BI: 0.6%, 3.34%), suggesting that raw spectral bands 
+    capture most of the SOC-related signal in agricultural soils</li>
+</ul>
+<p>
+    Tree-based models (Random Forest R² = 0.04, XGBoost R² = -0.05) significantly underperformed linear methods, indicating 
+    that the relationship between spectral features and SOC is predominantly linear at the spatial scale of LUCAS sampling 
+    points. This finding suggests that complex non-linear relationships either do not exist or cannot be reliably learned 
+    from this limited dataset, emphasising the value of simpler, more interpretable linear models when training data is scarce.
+    
+</p>
