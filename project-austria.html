@@ -37,14 +37,14 @@
 
 <h3 class="modal-section-title">Project Overview</h3>
 <p>
-    During my time at Remote Sensing Solutions I developed a machine learning framework to predict soil organic carbon (SOC) content in agricultural lands across
-    Austria and Bulgaria using Sentinel-2 spectral data. SOC is a critical indicator of soil health, agricultural productivity, and carbon sequestration potential, 
-    yet traditional field sampling is expensive, time consuming and spatially limited. By leveraging freely available satellite imagery from Sentinel-2, this 
-    approach demonstrates the potential for scalable, high-resolution and cost-effective SOC mapping across large agricultural regions.
+    During my time at Remote Sensing Solutions I developed a machine learning framework that predicts soil organic carbon (SOC) content in agricultural lands across
+    Austria and Bulgaria at 10m resolution using Sentinel-2 spectral data. SOC is a critical indicator of soil health, agricultural productivity, and carbon 
+    sequestration potential, yet traditional field sampling is expensive, time consuming and spatially limited. By leveraging freely available satellite imagery 
+    from Sentinel-2, this approach demonstrates the potential for scalable, high-resolution and cost-effective SOC mapping across large agricultural regions.
 </p>
 <p>
-    Using LUCAS soil survey data from Austria (131 field samples) as ground truth, the framework integrated raw spectral bands 
-    and derived vegetation indices as predictive features. Given the limited dataset size, the best model achieved 
+    Using the LUCAS soil survey data as ground truth (131 field samples for Austria), we utilise raw spectral bands 
+    as well as derived vegetation indices as predictive features. Given the limited dataset size, the best model achieved only 
     moderate predictive performance (R² = 0.21, RMSE = 5.5 g C/kg), however this is consistent with similar studies that used comparable methodologies and 
     data volumes. Importantly, the resulting predictions aligned well with independent SOC maps from the Cup4Soil and AI4SoilHealth projects, providing 
     external validation and demonstrating the framework's ability to capture regional SOC patterns.
@@ -60,6 +60,17 @@
 </div>
 
 <h3 class="modal-section-title">Methodology</h3>
+
+<h4 class="modal-subsection-title">1. Bare Soil Composite Generation</h4>
+<p>
+    A fundamental challenge in optical soil mapping is that SOC signals are obstructed by vegetation for most of the year. Accurate predictions are only possible 
+    on exposed, bare soil.
+</p>
+<p>
+    To address this, we implemented a temporal filtering pipeline that analysed Sentinel-2 imagery to identify the optimal acquisition window where agricultural 
+    fields were ploughed and vegetation-free. A <strong>Bare Soil Composite</strong> was generated for this specific point in time, masking out all pixels with 
+    vegetation cover (NDVI > 0.25) or cloud contamination to ensuring that spectral features were extracted exclusively from exposed soil surfaces.
+</p>
 
 <h4 class="modal-subsection-title">Feature Engineering</h4>
 <p>
