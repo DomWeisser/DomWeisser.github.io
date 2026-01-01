@@ -1,4 +1,4 @@
-<style>
+  <style>
     /* --- EXISTING STYLES --- */
     .modal-section-title { color: #00ffcc; font-size: 1.2rem; margin-top: 25px; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
     .modal-subsection-title { color: #5EEAD4; font-size: 0.9rem; margin-top: 15px; margin-bottom: 8px; font-weight: bold; }
@@ -61,63 +61,96 @@
 
 <h3 class="modal-section-title">Methodology</h3>
 
-<h4 class="modal-subsection-title">1. Bare Soil Composite Generation</h4>
+<h4 class="modal-subsection-title"> Bare Soil Composite Generation</h4>
 <p>
     A fundamental challenge in optical soil mapping is that SOC signals are obstructed by vegetation for most of the year. Accurate predictions are only possible 
-    on exposed, bare soil.
-</p>
-<p>
-    To address this, we implemented a temporal filtering pipeline that analysed Sentinel-2 imagery to identify the optimal acquisition window where agricultural 
-    fields were ploughed and vegetation-free. A <strong>Bare Soil Composite</strong> was generated for this specific point in time, masking out all pixels with 
-    vegetation cover (NDVI > 0.25) or cloud contamination to ensuring that spectral features were extracted exclusively from exposed soil surfaces.
+    on exposed, bare soil. To address this, we generated a 10m resolution Bare Soil Composite from Sentinel-2 imagery acquired post-harvest . We applied a strict mask
+    to exclude all pixels with active vegetation (NDVI > 0.25), ensuring that the spectral band values were exctracted exclusively from exposed soil surfaces.
 </p>
 
 <h4 class="modal-subsection-title">Feature Engineering</h4>
 <p>
-    The framework utilised Sentinel-2 multispectral data at 10m resolution, extracting both raw spectral bands (including RGB, NIR, LNIR, SWIR and LSWIR) and 
-    derived spectral indices that capture key soil and vegetation propertiesrelevant to organic carbon content. These included NDVI, BI, NBR2, BSI and EVI 
-    however NDVI and BI were the only two used in the final model.
-
+    From this composite, we constructed a feature space designed to capture soil physicochemical properties, consisting of: 
+</p>
+<ul>
+    <li><strong>Raw Spectral Bands:</strong> RGB, NIR, LNIR, SWIR and LSWIR bands.</li>
+    <li><strong>Derived Indices:</strong> Spectral indices known to correlate with carbon content, including Brightness Index (BI), Bare Soil Index (BSI), NBR2, and EVI.</li>
+</ul>
 
 <h4 class="modal-subsection-title">Statistical Optimisation for Limited Data</h4>
 <p>
-    To maximise predictive performance from our small dataset (131 samples), several statistical enhancements were implemented to improve model robustness 
-    and generalisation:
+    To maximise predictive performance given the limited ground truth data (131 samples), we implemented specific statistical transformations to mitigate noise and
+    distribution imbalance:
 </p>
 <ul>
     <li>
-        <strong>Box-Cox transformation</strong> of the target variable reduced skewness from 0.92 to 0.05, transforming the right-skewed SOC distribution into an 
-        approximately Gaussian distribution better suited for regression models.
+        <strong>Box-Cox Transformation:</strong> The target variable (SOC) was highly skewed (0.92). Applying a Box-Cox transformation reduced skewness to 0.05, 
+        creating the approximately Gaussian distribution required for improved regression performance.
     </li>
     <li>
-        <strong>Sample weighting</strong> emphasised extreme SOC values (both high and low) to improve model sensitivity 
-        across the full range of soil carbon content, preventing the model from focusing solely on the most common mid-range values.
-    </li>
-    <li>
-        <strong>Ensemble modeling</strong> evaluated multiple regression algorithms (Ridge Regression, Random Forest, XGBoost) with 5-fold cross-validation
-        to improve generalisation and reduce overfitting risk inherent in small-sample modelling.
+    <strong>Sample Weighting:</strong> To prevent the model from biasing towards the mean we applied inverse frequency sample weights. This penalised prediction 
+        errors on extreme values more heavily, forcing the model to learn the characteristic of the entire soil carbon spectrum.
     </li>
 </ul>
 
+<h4 class="modal-subsection-title"> Model Architecture & Validation</h4>
+<p>
+    For our model architecture we utilised a Ensemble Regression Architecture, stacking Ridge Regression, Random Forest and XGBoost to capture both simple trends
+    and complex soil-spectral interactions.
+
+</p>
+<p><strong>Stratified Cross-Validation Strategy:</strong></p>
+<p>
+    With small datasets, random validation splits often introduce bias (e.g., a validation fold containing only "medium" values). Therefore to ensure robust evaluation, 
+    we implemented Stratified K-Fold Cross-Validation. The continous SOC target was binned into five strate, and folds were generated stratified by these bins. This 
+    ensured that every training and validation split maintained the same distribution of low, medium and high SOC values as the original dataset, ensuring
+    robustness with limited data.
+</p>
+
+
 <h3 class="modal-section-title">Results</h3>
 <p>
-    The Ridge regression model achieved the best results on the Austrian dataset, with cross-validation R² of 0.21 with RMSE of 5.5 g C/kg and 
-    MAE of 4.2 g C/kg. While this represents moderate predictive performance, it is consistent with published studies using similar satellite-based approaches
-    and training set sizes. More importantly, feature importance analysis revealed meaningful physical relationships between spectral bands and soil carbon content, 
-    providing insights valuable for future SOC monitoring efforts.
+    Among the evaluated architectures, the Ridge Regression model demonstrated the highest robustness on the Austrian dataset, achieving a 
+    cross-validation R² of 0.21 (RMSE: 5.5 g C/kg, MAE: 4.2 g C/kg). While this represents moderate predictive capability, these metrics align with 
+    comparable satellite-based studies where ground truth data is sparse (N < 150). 
 </p>
-<p>Feature importance rankings revealed:</p>
+
+<h4 class="modal-subsection-title">Linear vs. Non-Linear Performance</h4>
+<p>
+    A critical finding of this study was the significant underperformance of complex tree-based models compared to linear methods:
+</p>
 <ul>
-    <li><strong>Near-infrared bands dominated:</strong> (LNIR: 26%, 20.44%, NIR: 9.7%, 18.15% for Austria and Bulgaria respectively), confirming that organic 
-    matter absorption features in the NIR spectrum are key predictors of SOC</li>
-    <li><strong>Blue band outperformed Red and Green bands:</strong> (24%, 23.19%), (11.6%, 9.68%), (8%, 1.35%)</li>
-    <li><strong>Derived indices provided moderate value</strong> (NDVI: 11.3%, 3.3%, BI: 0.6%, 3.34%), suggesting that raw spectral bands 
-    capture most of the SOC-related signal in agricultural soils</li>
+    <li><strong>Ridge Regression:</strong> R² = 0.21 </li>
+    <li><strong>Random Forest:</strong> R² = 0.04</li>
+    <li><strong>XGBoost:</strong> R² = -0.05</li>
 </ul>
 <p>
-    Tree-based models (Random Forest R² = 0.04, XGBoost R² = -0.05) significantly underperformed linear methods, indicating 
-    that the relationship between spectral features and SOC is predominantly linear at the spatial scale of LUCAS sampling 
-    points. This finding suggests that complex non-linear relationships either do not exist or cannot be reliably learned 
-    from this limited dataset, emphasising the value of simpler, more interpretable linear models when training data is scarce.
-    
+    This disparity indicates that the relationship between spectral features and SOC at this spatial scale is predominantly linear. It also serves as a reminder of 
+    model complexity vs. data volume: with only 131 training samples, sophisticated non-linear algorithms succumbed to overfitting.
 </p>
+
+<h4 class="modal-subsection-title">Physical Interpretation & Feature Importance</h4>
+<p>
+    Feature importance analysis confirmed that the model was learning meaningful physical relationships rather than spurious correlations. The rankings were consistent 
+    across both the Austria and Bulgaria datasets:
+</p>
+
+<ul>
+    <li>
+        <strong>Dominance of Shortwave & Near-Infrared (NIR):</strong>
+        <br>
+        The NIR and LNIR bands were the strongest predictors, accounting for ~26% and ~10%
+        of feature importance respectively.
+    </li>
+    <li>
+        <strong>Visible Spectrum Hierarchy (Blue > Red):</strong>
+        <br>
+        Surprisingly, the <strong>Blue band</strong> (24% importance) significantly outperformed the Red and Green bands. 
+    </li>
+    <li>
+        <strong>Raw Bands vs. Derived Indices:</strong>
+        <br>
+        Derived indices (NDVI, BI) contributed only moderate value (3-11%). This suggests that the raw spectral bands already contain the majority of the 
+        predictive signal, and that standard vegetation indices may be redundant when the model has direct access to the underlying spectral curve.
+    </li>
+</ul>
