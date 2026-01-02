@@ -86,15 +86,20 @@
 </ul>
 
 
-<div class="img-row">
-    <div class="img-col">
-        <img src="italy_forecast2.png" alt="LST Forecast Map" class="project-img">
-        <div class="img-caption">Figure 1: 1 Month ahead Forecast for LST - June 2024 (Extreme Dry Scenario)</div>
+<div class="comparison-container" id="comparisonContainer">
+    <img src="italy_forecast2.png" alt="Dry Scenario" class="comp-img">
+    <span class="slider-label label-left">Extreme Dry</span>
+
+    <div class="img-overlay" id="imgOverlay">
+        <img src="https://raw.githubusercontent.com/DomWeisser/DomWeisser.github.io/b6dfd386fea4b99c71a8d30b59dc074a310ccb77/italy_forecast1.png" alt="Wet Scenario" class="comp-img">
+        <span class="slider-label label-right">Extreme Wet</span>
     </div>
-    <div class="img-col">
-        <img src="https://raw.githubusercontent.com/DomWeisser/DomWeisser.github.io/b6dfd386fea4b99c71a8d30b59dc074a310ccb77/italy_forecast1.png" alt="LST Forecast Map 2" class="project-img">
-        <div class="img-caption">Figure 2: 1 Month ahead Forecast for LST - June 2024 (Extreme Wet Scenario)</div>
-    </div>
+
+    <input type="range" min="0" max="100" value="50" class="slider-input" id="slider" oninput="moveSlider()">
+</div>
+
+<div class="img-caption" style="text-align: center;">
+    Figure 1: Slide to compare Extreme Dry (Left) vs. Extreme Wet (Right) Scenarios - June 2024
 </div>
 
 <h3 class="modal-section-title">Methodology</h3>
