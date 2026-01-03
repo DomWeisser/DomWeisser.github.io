@@ -9,101 +9,107 @@
     <script src="//unpkg.com/globe.gl@2.26.4/dist/globe.gl.min.js"></script>
 
     <style>
-    /* --- COMPARISON SLIDER STYLES --- */
-    .comparison-container {
-        position: relative;
-        width: 100%;
-        max-width: 800px;
-        margin: 20px auto;
-        overflow: hidden;
-        line-height: 0;
-        border-radius: 4px;
-        border: 1px solid #444;
-        user-select: none; /* Prevents highlighting text while dragging */
-    }
-    .comp-img {
-        width: 100%;
-        height: auto;
-        display: block;
-    }
-    /* The top image container (Overlay) */
-    .img-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 50%;
-        height: 100%;
-        overflow: hidden;
-        z-index: 2;
-        /* NOTE: Border removed here, added to the divider instead */
-    }
-    /* Ensures top image fits main container */
-    .img-overlay img {
-        width: 100%; 
-        max-width: none;
-        height: auto;
-    }
+    /* --- FIXED COMPARISON SLIDER STYLES --- */
+        .comparison-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px; /* Adjust based on your preference */
+            aspect-ratio: 16 / 9; /* Reserves space so layout doesn't jump */
+            margin: 20px auto;
+            overflow: hidden;
+            border-radius: 4px;
+            border: 1px solid #444;
+            user-select: none;
+        }
     
-    /* NEW: The moving vertical line & handle container */
-    .slider-divider {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 50%; /* Initial position */
-        width: 2px;
-        background: var(--accent-color); /* Cyan line */
-        z-index: 5;
-        pointer-events: none; /* Let clicks pass through to input */
-        /* Centers handle vertically */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+        /* The Background Image (Extreme Dry) */
+        .img-background {
+            width: 100%;
+            height: 100%;
+        }
+        .img-background img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
     
-    /* NEW: The circular handle with arrows */
-    .slider-handle {
-        width: 32px;
-        height: 32px;
-        background: var(--accent-color);
-        border-radius: 50%;
-        color: #000; /* Black arrows on cyan background */
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 0 8px rgba(0,0,0,0.6);
-        /* Fix icon sizing */
-        font-size: 18px;
-        line-height: 1;
-    }
+        /* The Overlay Window (Extreme Wet) */
+        .img-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50%; /* Starts halfway */
+            height: 100%;
+            overflow: hidden;
+            z-index: 2;
+        }
     
-    /* UPDATED Labels - No background box */
-    .slider-label {
-        position: absolute;
-        top: 15px; /* Distance from top */
-        white-space: nowrap;
-        color: #fff;
-        font-weight: bold;
-        font-size: 0.85rem;
-        /* Text shadow replaces the background box for readability */
-        text-shadow: 0 1px 4px rgba(0,0,0,1); 
-    }
-    /* Position relative to the divider line */
-    .label-dry { right: 20px; } /* Sits to the left of the line */
-    .label-wet { left: 20px; }  /* Sits to the right of the line */
+        /* CRITICAL FIX: The image inside the overlay */
+        /* We force this to be large via JS, but CSS acts as fallback */
+        .img-overlay img {
+            height: 100%;
+            width: auto; 
+            max-width: none;
+            object-fit: cover;
+        }
     
+        /* The Moving Divider Line */
+        .slider-divider {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+            background: var(--accent-color);
+            z-index: 10;
+            pointer-events: none; /* Clicks pass through to the input */
+            display: flex;
+            align-items: center; /* Center handle vertically */
+            justify-content: center;
+        }
     
-    /* The invisible input used for dragging */
-    .slider-input {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0;
-        cursor: col-resize; /* Shows resize cursor */
-        z-index: 10;
-        margin: 0;
-    }
+        /* The Handle Button (Circle with Arrows) */
+        .slider-handle {
+            width: 36px;
+            height: 36px;
+            background: var(--accent-color);
+            border-radius: 50%;
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.8);
+        }
+    
+        /* The Moving Labels */
+        .slider-label {
+            position: absolute;
+            top: 20px;
+            color: #fff;
+            font-weight: bold;
+            font-size: 0.9rem;
+            white-space: nowrap;
+            text-shadow: 0 2px 4px #000000; /* Shadow instead of box */
+        }
+        
+        /* Position labels relative to the cyan line */
+        .label-left { right: 35px; } /* Pushes "Dry" to the left of handle */
+        .label-right { left: 35px; }  /* Pushes "Wet" to the right of handle */
+    
+        /* The Invisible Slider Input */
+        .slider-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: ew-resize; /* East-West resize cursor */
+            z-index: 20;
+            margin: 0;
+        }
         .label-left { left: 10px; z-index: 1; } /* Sits behind overlay */
         .label-right { right: 10px; z-index: 3;}
 
@@ -311,19 +317,27 @@
     <script>
     // --- COMPARISON SLIDER LOGIC ---
     function moveSlider() {
-        const slider = document.getElementById("slider");
-        const overlay = document.getElementById("imgOverlay");
-        // NEW: Get the divider element
-        const divider = document.getElementById("sliderDivider");
-        
-        if (slider && overlay && divider) {
-            const val = slider.value + "%";
-            // Resize the image overlay
-            overlay.style.width = val;
-            // Move the divider line and handle
-            divider.style.left = val;
+            const container = document.getElementById("comparisonContainer");
+            const slider = document.getElementById("slider");
+            const overlay = document.getElementById("imgOverlay");
+            const divider = document.getElementById("sliderDivider");
+            const topImg = document.querySelector("#imgOverlay img");
+            
+            if (slider && overlay && divider && container && topImg) {
+                const val = slider.value;
+                
+                // 1. Move the Overlay Window
+                overlay.style.width = val + "%";
+                
+                // 2. Move the Divider Line & Handle
+                divider.style.left = val + "%";
+                
+                // 3. CRITICAL: Prevent Squishing
+                // We force the top image to be the EXACT width of the container
+                // This creates the "reveal" effect.
+                topImg.style.width = container.offsetWidth + "px";
+            }
         }
-    }
         
         // Ensure the top image is sized correctly relative to the container
         function resizeComparisonImage() {
@@ -401,9 +415,13 @@
                     })
                     .then(html => {
                         body.innerHTML = html; // Inject the loaded text
-                        // Check if the loaded HTML contains a slider, and initialize it
+                        
+                        // Check if slider exists and initialize it
                         if (document.getElementById("comparisonContainer")) {
-                            resizeComparisonImage();
+                            // We must wait a tiny split second for the modal to render width
+                            setTimeout(() => {
+                                moveSlider(); 
+                            }, 50);
                         }
                     })
                     .catch(error => {
