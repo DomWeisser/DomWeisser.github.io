@@ -88,12 +88,25 @@
 
 <div class="comparison-container" id="comparisonContainer">
     <img src="italy_forecast2.png" alt="Dry Scenario" class="comp-img">
-    <span class="slider-label label-left">Extreme Dry</span>
 
     <div class="img-overlay" id="imgOverlay">
         <img src="https://raw.githubusercontent.com/DomWeisser/DomWeisser.github.io/b6dfd386fea4b99c71a8d30b59dc074a310ccb77/italy_forecast1.png" alt="Wet Scenario" class="comp-img">
-        <span class="slider-label label-right">Extreme Wet</span>
     </div>
+
+    <div class="slider-divider" id="sliderDivider">
+         <span class="slider-label label-dry">Extreme Dry</span>
+         <div class="slider-handle">
+            &#8596; 
+         </div>
+         <span class="slider-label label-wet">Extreme Wet</span>
+    </div>
+
+    <input type="range" min="0" max="100" value="50" class="slider-input" id="slider" oninput="moveSlider()">
+</div>
+
+<div class="img-caption" style="text-align: center;">
+    Figure 1: Drag the slider to compare Extreme Dry vs. Extreme Wet Scenarios - June 2024
+</div>
 
     <input type="range" min="0" max="100" value="50" class="slider-input" id="slider" oninput="moveSlider()">
 </div>
