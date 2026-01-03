@@ -9,72 +9,101 @@
     <script src="//unpkg.com/globe.gl@2.26.4/dist/globe.gl.min.js"></script>
 
     <style>
-        /* --- CSS STYLES --- */
-        :root {
-            --sidebar-width: 320px;
-            --bg-color: #000000;
-            --text-color: #ffffff;
-            --accent-color: #00ffcc; /* Cyan */
-            --glass-bg: rgba(20, 25, 40, 0.95);
-        }
-
-        /* --- COMPARISON SLIDER STYLES --- */
-        .comparison-container {
-            position: relative;
-            width: 100%;
-            max-width: 800px; /* Adjust if needed */
-            margin: 20px auto;
-            overflow: hidden;
-            line-height: 0;
-            border-radius: 4px;
-            border: 1px solid #444;
-        }
-        .comp-img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-        /* The top image container */
-        .img-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 50%; /* Starts at 50% */
-            height: 100%;
-            overflow: hidden;
-            border-right: 2px solid #00ffcc; /* Cyan line */
-            z-index: 2;
-        }
-        /* IMPORTANT: Forces top image to fit the main container, not the clipped overlay */
-        .img-overlay img {
-            width: 100%; 
-            max-width: none; /* Allows it to exceed the overlay div */
-            height: auto;
-        }
-        .slider-input {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            cursor: ew-resize;
-            z-index: 10;
-            margin: 0;
-        }
-        /* Labels */
-        .slider-label {
-            position: absolute;
-            top: 10px;
-            background: rgba(0,0,0,0.7);
-            color: #fff;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            pointer-events: none; /* Click through */
-            z-index: 3;
-            border: 1px solid #444;
-        }
+    /* --- COMPARISON SLIDER STYLES --- */
+    .comparison-container {
+        position: relative;
+        width: 100%;
+        max-width: 800px;
+        margin: 20px auto;
+        overflow: hidden;
+        line-height: 0;
+        border-radius: 4px;
+        border: 1px solid #444;
+        user-select: none; /* Prevents highlighting text while dragging */
+    }
+    .comp-img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+    /* The top image container (Overlay) */
+    .img-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 50%;
+        height: 100%;
+        overflow: hidden;
+        z-index: 2;
+        /* NOTE: Border removed here, added to the divider instead */
+    }
+    /* Ensures top image fits main container */
+    .img-overlay img {
+        width: 100%; 
+        max-width: none;
+        height: auto;
+    }
+    
+    /* NEW: The moving vertical line & handle container */
+    .slider-divider {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%; /* Initial position */
+        width: 2px;
+        background: var(--accent-color); /* Cyan line */
+        z-index: 5;
+        pointer-events: none; /* Let clicks pass through to input */
+        /* Centers handle vertically */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* NEW: The circular handle with arrows */
+    .slider-handle {
+        width: 32px;
+        height: 32px;
+        background: var(--accent-color);
+        border-radius: 50%;
+        color: #000; /* Black arrows on cyan background */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 0 8px rgba(0,0,0,0.6);
+        /* Fix icon sizing */
+        font-size: 18px;
+        line-height: 1;
+    }
+    
+    /* UPDATED Labels - No background box */
+    .slider-label {
+        position: absolute;
+        top: 15px; /* Distance from top */
+        white-space: nowrap;
+        color: #fff;
+        font-weight: bold;
+        font-size: 0.85rem;
+        /* Text shadow replaces the background box for readability */
+        text-shadow: 0 1px 4px rgba(0,0,0,1); 
+    }
+    /* Position relative to the divider line */
+    .label-dry { right: 20px; } /* Sits to the left of the line */
+    .label-wet { left: 20px; }  /* Sits to the right of the line */
+    
+    
+    /* The invisible input used for dragging */
+    .slider-input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: col-resize; /* Shows resize cursor */
+        z-index: 10;
+        margin: 0;
+    }
         .label-left { left: 10px; z-index: 1; } /* Sits behind overlay */
         .label-right { right: 10px; z-index: 3;}
 
@@ -280,16 +309,21 @@
     </div>
 
     <script>
-        // --- COMPARISON SLIDER LOGIC ---
-        function moveSlider() {
-            const slider = document.getElementById("slider");
-            const overlay = document.getElementById("imgOverlay");
-            
-            // Move the split point
-            if (slider && overlay) {
-                overlay.style.width = slider.value + "%";
-            }
+    // --- COMPARISON SLIDER LOGIC ---
+    function moveSlider() {
+        const slider = document.getElementById("slider");
+        const overlay = document.getElementById("imgOverlay");
+        // NEW: Get the divider element
+        const divider = document.getElementById("sliderDivider");
+        
+        if (slider && overlay && divider) {
+            const val = slider.value + "%";
+            // Resize the image overlay
+            overlay.style.width = val;
+            // Move the divider line and handle
+            divider.style.left = val;
         }
+    }
         
         // Ensure the top image is sized correctly relative to the container
         function resizeComparisonImage() {
