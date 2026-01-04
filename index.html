@@ -321,10 +321,13 @@
         function moveSlider() {
             const slider = document.getElementById("slider");
             const overlay = document.getElementById("imgOverlay");
+            const handle = document.getElementById("sliderHandle"); // New element
             
-            // Move the split point
-            if (slider && overlay) {
+            if (slider && overlay && handle) {
+                // Move the image split
                 overlay.style.width = slider.value + "%";
+                // Move the handle line and labels
+                handle.style.left = slider.value + "%";
             }
         }
         
