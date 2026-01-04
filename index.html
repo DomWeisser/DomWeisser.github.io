@@ -208,8 +208,36 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* About Me Images */
-        .about-img-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .about-img { width: 100%; border-radius: 5px; border: 1px solid #444; }
+        .about-img-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 15px; 
+            margin-top: 20px; 
+        }
+        
+        /* New container to hold image + text together */
+        .img-container {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .about-img { 
+            width: 100%; 
+            border-radius: 5px; 
+            border: 1px solid #444; 
+            /* Optional: Ensure images are same height if they have different aspect ratios */
+            /* aspect-ratio: 4/3; */ 
+            /* object-fit: cover; */
+        }
+        
+        /* Style for the caption text */
+        .about-caption {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 5px;
+            text-align: center;
+            font-style: italic;
+        }
     </style>
     
 </head>
@@ -294,8 +322,15 @@
                 
 
                 <div class="about-img-grid">
-                    <img src="IMG_2574.jpg" class="about-img" alt="My Trip">
-                    <img src="IMG_9115.jpg" class="about-img" alt="My Trip">
+                    <div class="img-container">
+                        <img src="IMG_2574.jpg" class="about-img" alt="My Trip">
+                        <div class="about-caption">Hiking to Rakaposhi basecamp in Pakistan</div>
+                    </div>
+                
+                    <div class="img-container">
+                        <img src="IMG_9090.jpg" class="about-img" alt="My Trip">
+                        <div class="about-caption">Summit of Mt Semeru, an active volcano in central Java</div>
+                    </div>
                 </div>
             </div>
         </div>
