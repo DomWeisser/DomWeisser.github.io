@@ -8,23 +8,25 @@
     <script src="//unpkg.com/globe.gl@2.26.4/dist/globe.gl.min.js"></script>
 
     <style>
-        /* --- COMPARISON SLIDER STYLES --- */
-        .comparison-container {
+    .comparison-container {
             position: relative;
             width: 100%;
-            max-width: 800px; /* Adjust if needed */
+            max-width: 800px;
             margin: 20px auto;
             overflow: hidden;
-            line-height: 0;
             border-radius: 4px;
             border: 1px solid #444;
+            /* Fix to prevent spacing issues */
+            line-height: 0; 
         }
+    
         .comp-img {
             width: 100%;
             height: auto;
             display: block;
         }
-        /* The top image container */
+    
+        /* The top image container (The Overlay) */
         .img-overlay {
             position: absolute;
             top: 0;
@@ -35,12 +37,36 @@
             border-right: 2px solid #00ffcc; /* Cyan line */
             z-index: 2;
         }
-        /* IMPORTANT: Forces top image to fit the main container, not the clipped overlay */
+    
+        /* --- NEW: The Handle / Arrow Button --- */
+        .img-overlay::after {
+            content: '↔'; /* Double arrow symbol */
+            position: absolute;
+            top: 50%;
+            right: -16px; /* Half the width (32px) to center it on the line */
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            background-color: #00ffcc;
+            color: #000;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            pointer-events: none; /* Important: lets clicks pass through to the slider input */
+            z-index: 20; 
+        }
+    
+        /* Forces top image to fit the main container */
         .img-overlay img {
             width: 100%; 
-            max-width: none; /* Allows it to exceed the overlay div */
+            max-width: none; 
             height: auto;
         }
+    
         .slider-input {
             position: absolute;
             top: 0;
@@ -52,21 +78,28 @@
             z-index: 10;
             margin: 0;
         }
-        /* Labels */
+    
+        /* --- UPDATED: Labels (No Background) --- */
         .slider-label {
             position: absolute;
-            top: 10px;
-            background: rgba(0,0,0,0.7);
+            top: 15px;
             color: #fff;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            pointer-events: none; /* Click through */
+            /* Removed background and border */
+            background: transparent; 
+            border: none;
+            padding: 0;
+            
+            font-size: 0.9rem;
+            font-weight: bold;
+            pointer-events: none; 
             z-index: 3;
-            border: 1px solid #444;
+            
+            /* Added shadow so text is readable without the black box */
+            text-shadow: 0 2px 4px rgba(0,0,0,1); 
         }
-        .label-left { left: 10px; z-index: 1; } /* Sits behind overlay */
-        .label-right { right: 10px; z-index: 3;}
+    
+        .label-left { left: 20px; z-index: 5; } 
+        .label-right { right: 20px; z-index: 5; }
         
         /* --- CSS STYLES --- */
         :root {
