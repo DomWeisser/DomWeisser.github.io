@@ -169,24 +169,19 @@
     <li>What is the range of possible drought probabilities given precipitation uncertainty in our location?</li>
 </ul>
 
-<div class="comparison-container" id="comparisonContainer">
-    
-    <img src="kenya_forecast1.png" alt="Extreme Dry Scenario" class="comp-img">
-
-    <div class="img-overlay" id="imgOverlay">
-        <img src="kenya_forecast2.png" alt="Extreme Wet Scenario" class="comp-img">
+<div class="img-row">
+    <div class="img-col">
+        <img src="kenya_forecast1.png" 
+             alt="Extreme Dry Scenario" 
+             class="comp-img">
+        <div class="img-caption">Figure 1: NDII forecast for October 2022 under extreme dry scenario</div>
     </div>
-
-    <div class="slider-handle" id="sliderHandle">
-        <span class="handle-label label-wet">Extreme Wet</span>
-        <span class="handle-label label-dry">Extreme Dry</span>
+    <div class="img-col">
+        <img src="kenya_forecast2.png" 
+             alt="Extreme Wet Scenario" 
+             class="comp-img">
+        <div class="img-caption">Figure 2: NDII forecast for October 2022 under extreme wet scenario</div>
     </div>
-
-    <input type="range" min="0" max="100" value="50" class="slider-input" id="slider" oninput="moveSlider()">
-</div>
-
-<div class="img-caption" style="text-align: center;">
-    Figure 1: Comparison of forecasts for NDII in October 2022 under extreme wet and extreme dry scenarios
 </div>
 
 <h3 class="modal-section-title">Methodology</h3>
