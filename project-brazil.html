@@ -120,7 +120,7 @@
 <h3 class="modal-section-title">Model Performance & Key Findings</h3>
 <p>
     Three models were evaluated using Leave-One-Out Cross-Validation: Linear Regression, Ridge Regression, and Bayesian Ridge 
-    Regression. The <strong>Linear Regression model</strong> achieved the best performance with cross-validation R² of 0.82 
+    Regression. The >Linear Regression model achieved the best performance with cross-validation R² of 0.82 
     and MAE of 17.5 ± 13 cm, successfully capturing seasonal dynamics from +80 cm during wet season peaks to -70 cm during 
     dry season troughs.
 </p>
@@ -131,14 +131,23 @@
     <li><strong>Sentinel-1 VH backscatter</strong> emerged as the second most important feature, indicating that radar-derived 
     vegetation/surface water signals provide valuable complementary information despite regional averaging</li>
     <li><strong>Seasonal patterns</strong> (sine/cosine month transformations) showed strong correlations but contributed 
-    moderate additional predictive value beyond GRACE</li>
+    only moderate additional predictive value beyond GRACE storage change data</li>
 </ul>
+
+<div class="img-row">
+    <div class="img-col">
+        <img src="https://github.com/DomWeisser/Multi-Scale-Groundwater-Monitoring-in-the-Amazon-Integrating-Satellite-and-In-Situ-well-data-with-ML/blob/8e6dad71d6493dfdc89493a3cbdd205c4595f96f/Images/uncertainty_time_series%20(2).png" 
+             alt="Amazon Groundwater Monitoring Overview" 
+             class="project-img">
+        <div class="img-caption">Figure 4: Bayesian Ridge Regression predictions with uncertainty</div>
+    </div>
+</div>
 
 
 <h3 class="modal-section-title">Conclusions & Future Potential</h3>
 <p>
-    While constrained by limited spatial coverage and only a single year of observations, the results demonstrate the 
-    potential for satellite-based groundwater monitoring in data-scarce tropical regions. The 
+    While constrained by limited spatial coverage and only a single year of observations, the results do demonstrate the 
+    potential for satellite-based groundwater monitoring in data-scarce regions. The 
     dominance of GRACE in feature importance validates the physical basis of the approach, while the complementary value 
     of Sentinel-1 suggests multi-sensor fusion can improve predictions beyond gravity measurements alone.
 </p>
