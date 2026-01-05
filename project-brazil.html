@@ -45,9 +45,9 @@
 <p>
     I developed a machine learning framework to predict month-on-month groundwater level changes 
     using GRACE-derived regional water storage, GLDAS land surface model components, and Sentinel-1 radar backscatter. 
-    Despite limited spatial coverage (only 4 wells) and temporal extent (2019 only due to time constraints), the approach achieved strong predictive 
-    performance (R² = 0.82), demonstrating the viability of satellite-based groundwater monitoring in tropical regions where 
-    traditional well networks are sparse.
+    Despite limited spatial coverage (only 4 wells in my roi) and temporal extent (only analysed 2019 due to time constraints), 
+    the approach achieved strong predictive performance (R² = 0.82), demonstrating the viability of satellite-based groundwater
+    monitoring in tropical regions where traditional well networks are sparse.
 </p>
 
 <div class="img-row">
@@ -63,10 +63,10 @@
 <h3 class="modal-section-title">Core Challenge: Data Scarcity and Time Constraints</h3>
 <p>
     Due to the remoteness of the study region, only four wells provided monthly groundwater change data for 
-    2019. This sparse spatial coverage made interpolation across the region unreliable, requiring a point-based approach that 
+    2019. This sparse spatial coverage made interpolation across the region unreliable, instead requiring a point-based approach that 
     averaged measurements. While this represented a significant spatial simplification given the Amazon's heterogeneity, it 
     was deemed suitable for establishing proof-of-concept relationships between satellite observations and ground-based 
-    measurements in this densely forested environment given my lack of available time.
+    measurements given my lack of available time.
 </p>
 
 <h3 class="modal-section-title">Methodology</h3>
@@ -75,7 +75,7 @@
 <p>
     The well data represents monthly groundwater level changes, directly measured by the RIMAS monitoring network within Brazilian aquifers. Figure 2 
     illustrates the average month-on-month change in groundwater levels across the 4 wells that fall within my region of interest. It clearly depicts the 
-    hydrological cycle, with groundwater levels rosing during the wet season with a 1-2 month lag (peaking in June), then declining throughout the dry season 
+    hydrological cycle, with groundwater levels rising during the wet season with a 1-2 month lag (peaking in June), then declining throughout the dry season 
     (reaching minimum in December).
 </p>
 
@@ -97,8 +97,8 @@
 
 <h4 class="modal-subsection-title">Groundwater Isolation from GRACE/GLDAS</h4>
 <p>
-    GRACE provides monthly Total Water Storage (TWS) anomalies, representing all water stored on and beneath the land surface 
-    (groundwater, soil moisture, surface water, snow, canopy water). To isolate groundwater storage, I subtracted GLDAS-modeled 
+    The GRACE satellite mission provides monthly Total Water Storage (TWS) anomalies, representing all water stored on or beneath the land surface 
+    (including groundwater, soil moisture, surface water, snow, canopy water). To isolate groundwater storage, I subtracted GLDAS-modeled 
     surface components (soil moisture at multiple depths, snow water equivalent, canopy water) from GRACE TWS anomalies:
 </p>
 <p style="background: rgba(255,255,255,0.1); padding: 10px; border-left: 3px solid #4CAF50; font-family: monospace; font-size: 0.85rem; margin-left: 20px;">
