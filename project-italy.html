@@ -155,9 +155,9 @@
 <ul>
     <li><strong>Extreme Dry:</strong> Representing if there were to be severe drought conditions </li>
     <li><strong>Dry:</strong> If there were to be below-average precipitation </li>
-    <li><strong>Baseline:</strong> Forecast based on the expected precipitation</li>
-    <li><strong>Wet:</strong> Above-average precipitation </li>
-    <li><strong>Extreme Wet:</strong> Extreme high precipitation conditions </li>
+    <li><strong>Baseline:</strong> Forecast based on the average precipitation</li>
+    <li><strong>Wet:</strong> If there were to be above-average precipitation </li>
+    <li><strong>Extreme Wet:</strong> Representing if there were to be extreme high precipitation conditions </li>
 </ul>
 <p>
     The "what-if" capability allows agircultural decision-makes to assess a range of potential outcomes rather than relying on a single deterministic prediction.
@@ -186,7 +186,7 @@
 </div>
 
 <div class="img-caption" style="text-align: center;">
-    Figure 1: Slide to compare Scenarios
+    Figure 1: Comparison of forecasts for June 2024 under extreme wet and extreme dry scenarios
 </div>
 
 <h3 class="modal-section-title">Methodology</h3>
@@ -266,8 +266,8 @@
     Precipitation_Scenario = Mean + (Std_Dev × Regional_Multiplier)
 </p>
 <p>
-    <strong>Why this matters:</strong> This ensures physical realism. A multiplier of <code>1.25 std</code> (Extreme wet) might translate to the 95th percentile
-    in arid Sicily but <code> 2.05 std</code> might translate to the 95th percentile in the Alps, therefore correctly identifying "extreme" conditions relative
+    <strong>Why this matters:</strong> This ensures physical realism. A multiplier of <code>1.25std</code> (Extreme wet) might translate to the 95th percentile
+    in arid Sicily but instead <code> 2.05std</code> might translate to the 95th percentile in the Alps, therefore correctly identifying "extreme" conditions relative
     to the norm.
 </p>
 
