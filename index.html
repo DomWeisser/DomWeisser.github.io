@@ -459,8 +459,8 @@
             // 2. Setup Buttons
             const linkContainer = document.getElementById("modalLinks");
             linkContainer.innerHTML = ""; 
-            if (data.pdf) linkContainer.innerHTML += `<a href="${data.pdf}" target="_blank" class="btn">📄 Analysis (PDF)</a> `;
-            if (data.github) linkContainer.innerHTML += `<a href="${data.github}" target="_blank" class="btn btn-outline">💻 Code (GitHub)</a>`;
+            if (data.pdf) linkContainer.innerHTML += `<a href="${data.pdf}" target="_blank" class="btn"> Full Paper </a> `;
+            if (data.github) linkContainer.innerHTML += `<a href="${data.github}" target="_blank" class="btn btn-outline"> Full Report</a>`;
 
             projectModal.style.display = "block";
             try { world.controls().autoRotate = false; } catch(e){}
