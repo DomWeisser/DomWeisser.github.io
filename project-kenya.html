@@ -235,24 +235,24 @@
 <ol>
     <li>
         <strong>Gamma Distribution Modeling:</strong> 
-        Precipitation data is non-normal. For every training data-point, we fit Gamma distributions 
-        to the historical monthly rainfall (2001-2022). This allows us to accurately quantify the rainfall of specific percentiles 
+        Precipitation data is non-normal. For every training data-point, we fitted Gamma distributions 
+        to the historical monthly rainfall (2001-2022). This allowed us to accurately quantify the rainfall of specific percentiles 
         (e.g., calculating exactly how many mm constitutes the "5th percentile" for this specific location and month) .
     </li>
     <li>
         <strong>Standardisation:</strong> 
-        We convert these Gamma-derived percentiles into standardised multipliers (Z-scores) relative to the local precipitation mean. 
+        We converted these Gamma-derived percentiles into standardised multipliers (Z-scores) relative to the local precipitation mean. 
         <br>
         <em style="color: #999;">(e.g., The 5th percentile is -1.8 std below the mean for this specific location and month)</em>
     </li>
     <li>
         <strong>Regional Aggregation:</strong> 
-        To filter out noise from individual data-points, these multipliers are averaged spatially within 1° × 1° grid cells. 
+        To filter out noise from individual data-points, these multipliers were averaged spatially within 1° × 1° grid cells. 
         This creates a robust "Regional Multiplier" that defines the shape of extreme rainfall scenarios for that specific area.
     </li>
     <li>
         <strong>Operational Application:</strong> 
-        When generating scenario forecasts, we reconstruct the forecasted precipitation value by applying the regional multiplier to the pixel's specific 
+        When generating scenario forecasts, we reconstructed the forecasted precipitation value by applying the regional multiplier to the pixel's specific 
         precipitation mean:
     </li>
 </ol>
