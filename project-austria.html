@@ -37,13 +37,13 @@
 
 <h3 class="modal-section-title">Project Overview</h3>
 <p>
-    During my time at Remote Sensing Solutions I developed a machine learning framework that predicts soil organic carbon (SOC) content in agricultural lands across
+    During my time at Remote Sensing Solutions, I developed a machine learning framework that predicts soil organic carbon (SOC) content in agricultural lands across
     Austria and Bulgaria at 10m resolution using Sentinel-2 spectral data. SOC is a critical indicator of soil health, agricultural productivity, and carbon 
     sequestration potential, yet traditional field sampling is expensive, time consuming and spatially limited. By leveraging freely available satellite imagery 
     from Sentinel-2, this approach demonstrates the potential for scalable, high-resolution and cost-effective SOC mapping across large agricultural regions.
 </p>
 <p>
-    Using the LUCAS soil survey data as ground truth (131 field samples for Austria), we utilise raw spectral bands 
+    Using the LUCAS soil survey data as ground truth (131 field samples for Austria), we utilised raw spectral bands 
     as well as derived vegetation indices as predictive features. Given the limited dataset size, the best model achieved only 
     moderate predictive performance (R² = 0.21, RMSE = 5.5 g C/kg), however this is consistent with similar studies that used comparable methodologies and 
     data volumes <sup><a href="https://www.mdpi.com/2072-4292/15/8/2118" target="_blank" rel="noopener noreferrer" style="color: white;" title="Soil Organic Carbon Prediction Using Sentinel-2 Data and Environmental Variables in a Karst Trough Valley Area of Southwest China">[1]</a></sup>.
@@ -80,7 +80,7 @@
 
 <h4 class="modal-subsection-title">Statistical Optimisation for Limited Data</h4>
 <p>
-    To maximise predictive performance given the limited ground truth data (131 samples), we implemented specific statistical transformations to try mitigate 
+    To maximise predictive performance given the limited ground truth data (131 samples), we implemented specific statistical transformations to mitigate 
     distribution imbalance and noise:
 </p>
 <ul>
@@ -102,7 +102,7 @@
 </p>
 <p><strong>Stratified Cross-Validation Strategy:</strong></p>
 <p>
-    With small datasets, random corss-validation splits often introduce bias (e.g., a validation fold containing only "medium" values). Therefore to ensure robust evaluation, 
+    With small datasets, random cross-validation splits often introduce bias (e.g., a validation fold containing only "medium" values). Therefore to ensure robust evaluation, 
     we implemented Stratified K-Fold Cross-Validation. The continous SOC target was binned into five strata, and folds were generated stratified by these bins. This 
     ensured that every training and validation split maintained the same distribution of low, medium and high SOC values as the original dataset, ensuring
     robustness with limited data.
