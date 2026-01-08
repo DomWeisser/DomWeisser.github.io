@@ -43,16 +43,18 @@
         width: 100%;
         max-width: 800px;
         margin: 20px auto;
+        aspect-ratio: 16 / 9; 
         overflow: hidden; 
         border-radius: 4px;
         border: 1px solid #444;
         line-height: 0;
-        user-select: none; /* Stops text highlighting while dragging */
+        user-select: none;
     }
 
     .comp-img {
         width: 100%;
-        height: auto;
+        height: 100%;
+        object-fit: cover;
         display: block;
     }
 
@@ -68,9 +70,11 @@
     }
 
     .img-overlay img {
-        width: 100%; 
+        /* JS sets the width, CSS sets the height */
+        width: auto; 
+        height: 100%;
         max-width: none; 
-        height: auto;
+        object-fit: cover; /* Locks the aspect ratio to match the background */
     }
 
     /* --- THE MOVING HANDLE (Line + Arrows + Labels) --- */
