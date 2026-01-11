@@ -1,0 +1,79 @@
+  <style>
+    /* --- EXISTING STYLES --- */
+    .modal-section-title { color: #00ffcc; font-size: 1.2rem; margin-top: 25px; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+    .modal-subsection-title { color: #5EEAD4; font-size: 0.9rem; margin-top: 15px; margin-bottom: 8px; font-weight: bold; }
+    p, li { font-size: 0.85rem; line-height: 1.6; color: #ddd; }
+    strong { color: #fff; }
+
+    /* --- NEW IMAGE STYLES --- */
+    .img-row {
+        display: flex;
+        gap: 15px; /* Space between images */
+        margin: 20px 0;
+        align-items: flex-start;
+    }
+    .img-col {
+        flex: 1; /* Each column takes equal width */
+        text-align: center;
+    }
+    .project-img {
+        width: 100%;
+        height: auto;
+        border-radius: 4px;
+        border: 1px solid #444;
+        transition: transform 0.2s;
+    }
+    .project-img:hover {
+        transform: scale(1.02);
+        border-color: #00ffcc;
+    }
+    .img-caption {
+        font-size: 0.75rem;
+        color: #888;
+        margin-top: 5px;
+        font-style: italic;
+    }
+</style>
+
+<h3 class="modal-section-title">Project Overview</h3>
+This project shows how to leverage Sentinel-3 altimetry data to detect ocean eddies in the Arctic. The detection is achieved by calculating Sea Surface Height Anomalies (SSHA) and 
+applying optimal interpolation via GPSat to resolve the target eddy structure.
+
+* **Notebook 1: Selection and Acquisition**
+  * Utilises the Mesoscale Eddy Trajectory Atlas to identify candidate eddies
+  * Automates the download of satellite imagery intersecting the target region
+
+* **Notebook 2: Processing and Interpolation**
+  * Computes the SSHA from the raw Sentinel-3 altimetry data
+  * Uses GPSat to optimally interpolate the SSHA, allowing for the identification and analysis of the ocean eddies within the region of interest
+
+
+<div class="img-row">
+    <div class="img-col">
+        <img src="https://github.com/DomWeisser/Detecting-and-Calculating-SSHA-of-Ocean-Eddies-using-Satellites-Imagery/blob/3e0c40b80891d9a306e638fa544c1fb89112a50d/Figures/arctic_eddies.png" 
+             alt="Arctic Eddies" 
+             class="project-img">
+        <div class="img-caption">Figure 1: Arctic Eddies on 10-01-2019</div>
+    </div>
+    <div class="img-col">
+        <img src="https://github.com/DomWeisser/Detecting-and-Calculating-SSHA-of-Ocean-Eddies-using-Satellites-Imagery/blob/3e0c40b80891d9a306e638fa544c1fb89112a50d/Figures/eddy_intersection.png" 
+             alt="Eddy Intersection" 
+             class="project-img">
+        <div class="img-caption">Figure 2: Intersection of Sentinel-3 paths with Region of Interest</div>
+    </div>
+</div>
+
+<div class="img-row">
+    <div class="img-col">
+        <img src="https://github.com/DomWeisser/Detecting-and-Calculating-SSHA-of-Ocean-Eddies-using-Satellites-Imagery/blob/3e0c40b80891d9a306e638fa544c1fb89112a50d/Figures/GPSat_interpolation.png" 
+             alt="GPSat Predictions" 
+             class="project-img">
+        <div class="img-caption">Figure 3: GPSat predictions of SSHA at the region of interest</div>
+    </div>
+</div>
+
+<p>
+    Find my full analysis in GitHub below
+</p>
+
+ 
