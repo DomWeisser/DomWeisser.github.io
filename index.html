@@ -6,153 +6,191 @@
     <title>Dominic Weisser | AI & Earth Observation</title>
     <script src="//unpkg.com/three@0.148.0/build/three.min.js"></script>
     <script src="//unpkg.com/globe.gl@2.26.4/dist/globe.gl.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --sidebar-width: 350px;
+            --sidebar-width: 320px;
             --bg-color: #020408;
             --accent-color: #00ffcc;
-            --glass-bg: rgba(13, 17, 23, 0.96);
+            --glass-bg: rgba(13, 17, 23, 0.95);
             --border: 1px solid rgba(0, 255, 204, 0.2);
         }
 
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg-color); color: #fff; font-family: 'Inter', sans-serif; overflow: hidden; }
         #globeViz { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; }
 
-        /* UI: Professional HUD Header */
+        /* HEADER HUD */
         .header-overlay { 
-            position: absolute; top: 35px; left: 90px; z-index: 10; pointer-events: none;
+            position: absolute; top: 30px; left: 90px; z-index: 10; pointer-events: none;
             border-left: 2px solid var(--accent-color); padding-left: 20px;
         }
-        h1 { margin: 0; font-size: 1.6rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 600; }
-        .subtitle { color: var(--accent-color); font-size: 0.75rem; font-family: 'JetBrains Mono'; margin-top: 4px; opacity: 0.8; }
+        h1 { margin: 0; font-size: 1.8rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 600; }
+        .subtitle { color: var(--accent-color); font-size: 0.8rem; font-family: 'JetBrains Mono'; margin-top: 5px; opacity: 0.9; }
 
-        /* UI: Modern Nav Button */
-        .nav-toggle {
-            position: fixed; top: 30px; left: 25px; z-index: 30;
-            background: var(--glass-bg); border: var(--border); color: var(--accent-color);
-            padding: 12px 15px; border-radius: 4px; cursor: pointer;
-            font-family: 'JetBrains Mono'; font-size: 0.8rem; letter-spacing: 1px;
-            transition: 0.3s; display: flex; align-items: center; gap: 8px;
+        /* NAV TOGGLE */
+        .menu-btn { 
+            position: fixed; top: 25px; left: 20px; z-index: 30; 
+            background: var(--glass-bg); color: var(--accent-color); 
+            border: var(--border); padding: 12px 15px; border-radius: 4px; 
+            cursor: pointer; font-family: 'JetBrains Mono'; transition: 0.3s;
         }
-        .nav-toggle:hover { background: var(--accent-color); color: #000; box-shadow: 0 0 15px var(--accent-color); }
+        .menu-btn:hover { background: var(--accent-color); color: #000; }
 
-        /* UI: Layer Controls */
+        /* LAYER CONTROLS */
         .layer-control {
             position: absolute; bottom: 40px; right: 30px; z-index: 20;
-            background: var(--glass-bg); padding: 20px; border-radius: 8px;
-            border: var(--border); display: flex; flex-direction: column; gap: 10px;
+            background: var(--glass-bg); padding: 15px; border-radius: 8px;
+            border: var(--border); display: flex; flex-direction: column; gap: 8px;
             backdrop-filter: blur(10px);
         }
-        .layer-label { font-size: 0.6rem; color: #666; font-family: 'JetBrains Mono'; margin-bottom: 5px; letter-spacing: 1px; }
         .layer-btn {
             background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
-            color: #888; padding: 10px 15px; font-size: 0.7rem; cursor: pointer;
+            color: #666; padding: 10px 15px; font-size: 0.7rem; cursor: pointer;
             border-radius: 4px; font-family: 'JetBrains Mono'; transition: 0.3s; text-align: left;
         }
         .layer-btn.active { border-color: var(--accent-color); color: var(--accent-color); background: rgba(0, 255, 204, 0.1); }
 
-        /* Sidebar & Modals (Original Content preserved) */
-        .sidebar { position: fixed; left: 0; top: 0; width: var(--sidebar-width); height: 100%; background: var(--glass-bg); z-index: 25; transform: translateX(-100%); transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); padding: 100px 40px; box-sizing: border-box; border-right: 1px solid #333; overflow-y: auto; }
+        /* SIDEBAR */
+        .sidebar { 
+            position: fixed; left: 0; top: 0; width: var(--sidebar-width); height: 100%; 
+            background: var(--glass-bg); z-index: 25; transform: translateX(-100%); 
+            transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); padding: 100px 30px; box-sizing: border-box; 
+            border-right: 1px solid #333; overflow-y: auto; 
+        }
         .sidebar.open { transform: translateX(0); }
-        .modal-overlay { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); backdrop-filter: blur(8px); }
-        .modal-content { background: #0d1117; margin: 5% auto; padding: 40px; border: var(--border); width: 80%; max-width: 800px; border-radius: 4px; position: relative; }
+        .close-sidebar { position: absolute; top: 25px; right: 25px; color: #666; cursor: pointer; font-size: 1.5rem; }
+
+        /* MODALS (Standard) */
+        .modal-overlay { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(8px); overflow-y: auto;}
+        .modal-content { background: #0d1117; margin: 5% auto; padding: 40px; border: var(--border); width: 85%; max-width: 800px; border-radius: 4px; position: relative; }
+        .close-modal-btn { position: absolute; top: 20px; right: 25px; color: #fff; font-size: 30px; cursor: pointer; }
+
+        /* WRITING STYLES */
+        .menu-section-btn { width: 100%; text-align: left; background: none; border: none; color: #fff; font-size: 1rem; font-weight: 600; padding: 15px 0; border-bottom: 1px solid #333; cursor: pointer; display: flex; justify-content: space-between; }
+        .menu-content { display: none; padding: 10px 0 10px 15px; }
+        .menu-content.show { display: block; }
+        .sidebar-project-link { cursor: pointer; padding: 8px 0; font-size: 0.85rem; color: #aaa; transition: 0.2s; }
+        .sidebar-project-link:hover { color: var(--accent-color); }
+        .btn { display: inline-block; background: var(--accent-color); color: #000; padding: 10px 20px; text-decoration: none; border-radius: 4px; font-weight: bold; cursor: pointer; margin-top: 10px;}
+        
+        .about-img-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .about-img { width: 100%; border-radius: 4px; border: 1px solid #333; }
+        .about-caption { font-size: 0.75rem; color: #888; margin-top: 5px; text-align: center; font-style: italic; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 
 <body>
     <div id="globeViz"></div>
 
+    <button class="menu-btn" onclick="toggleSidebar()">☰ MENU</button>
+
     <div class="header-overlay">
         <h1>Dominic Weisser</h1>
         <div class="subtitle">AI for Sustainable Development & Earth Observation</div>
     </div>
 
-    <button class="nav-toggle" onclick="toggleSidebar()">
-        <span>MENU</span>
-    </button>
-
     <div class="layer-control">
-        <div class="layer-label">VIEWPORT DATA LAYERS</div>
-        <button class="layer-btn active" onclick="updateLayer('topo', this)">01. TOPOGRAPHY & TERRAIN</button>
-        <button class="layer-btn" onclick="updateLayer('night', this)">02. SOCIO-ECONOMIC (NIGHT)</button>
-        <button class="layer-btn" onclick="updateLayer('ocean', this)">03. OCEAN CURRENT PATTERNS</button>
+        <div style="font-size: 0.6rem; color: #666; font-family: 'JetBrains Mono'; margin-bottom: 5px;">DATA LAYERS</div>
+        <button id="topo-btn" class="layer-btn active" onclick="setLayer('topo')">01. TOPOGRAPHY & TERRAIN</button>
+        <button id="night-btn" class="layer-btn" onclick="setLayer('night')">02. SOCIO-ECONOMIC (NIGHT)</button>
+        <button id="ocean-btn" class="layer-btn" onclick="setLayer('ocean')">03. OCEAN & WIND FLOW</button>
     </div>
 
     <div class="sidebar" id="mySidebar">
-        <div onclick="toggleSidebar()" style="position: absolute; top: 35px; right: 35px; cursor: pointer; font-family: 'JetBrains Mono'; color: #666;">[ CLOSE ]</div>
-        <h2 style="color: var(--accent-color); font-size: 1rem; letter-spacing: 1px;">PROJECT REPOSITORY</h2>
-        <div id="project-list" style="margin-top: 30px;"></div>
-        <div style="margin-top: 40px; border-top: 1px solid #333; padding-top: 20px;">
-            <button onclick="openAbout()" style="background:none; border:none; color:#fff; font-family: 'JetBrains Mono'; cursor:pointer; font-size: 0.9rem;">> ABOUT JOURNEY</button><br><br>
-            <button onclick="openCV()" style="background:none; border:none; color:#fff; font-family: 'JetBrains Mono'; cursor:pointer; font-size: 0.9rem;">> VIEW CV / PDF</button>
+        <div class="close-sidebar" onclick="toggleSidebar()">✕</div>
+        
+        <button class="menu-section-btn" onclick="openAbout()">About Me <span>&rarr;</span></button>
+
+        <button class="menu-section-btn" onclick="toggleAccordion('project-list-container')">Projects <span>&#9662;</span></button>
+        <div id="project-list-container" class="menu-content"></div>
+
+        <button class="menu-section-btn" onclick="toggleAccordion('contact-container')">Contact / CV <span>&#9662;</span></button>
+        <div id="contact-container" class="menu-content">
+            <div style="font-size: 0.85rem; color: #ddd; margin-bottom: 10px;">
+                <span style="color: var(--accent-color); font-weight: bold;">Email:</span> dweisser99@gmail.com
+            </div>
+            <button class="btn" onclick="openCV()" style="width:100%">View My CV</button>
         </div>
     </div>
 
     <div id="projectModal" class="modal-overlay">
         <div class="modal-content">
-            <span onclick="closeModals()" style="position: absolute; top: 20px; right: 30px; cursor: pointer; font-size: 1.5rem;">&times;</span>
-            <h2 id="modalTitle" style="color: var(--accent-color); letter-spacing: 1px;"></h2>
-            <div id="modalBody" style="line-height: 1.8; color: #ccc; margin-top: 20px; font-size: 0.95rem;"></div>
+            <span class="close-modal-btn" onclick="closeAllModals()">&times;</span>
+            <h2 id="modalTitle" style="color: var(--accent-color); margin-top: 0;"></h2>
+            <div id="modalBody" style="line-height: 1.7; color: #ccc;"></div>
+            <div id="modalLinks" style="margin-top: 25px;"></div>
         </div>
     </div>
 
     <div id="aboutModal" class="modal-overlay">
-        <div class="modal-content" style="max-height: 80vh; overflow-y: auto;">
-            <span onclick="closeModals()" style="position: absolute; top: 20px; right: 30px; cursor: pointer;">&times;</span>
-            <h2 style="color: var(--accent-color);">My Journey</h2>
-            <div id="aboutText" style="line-height: 1.7; color: #ccc;">
+        <div class="modal-content">
+            <span class="close-modal-btn" onclick="closeAllModals()">&times;</span>
+            <h2 style="color: var(--accent-color); margin-top: 0;">My Journey</h2>
+            <div style="line-height: 1.8; color: #ccc;">
                 <p>I am a AI researcher and Data Scientist dedicated to leveraging machine learning to solve environmental challenges. Born in Thailand and raised across Germany, Turkey, Qatar, and Spain, I developed an early appreciation for the natural world and a firsthand understanding of how environmental changes disproportionately impact different regions. My academic journey began at the University of Warwick with a BMORSE (Mathematics, Operational Research, Statistics, and Economics) which focused heavily on pure mathematical and statistical theory. This led me to roles as an Actuarial Graduate and to sport statistics. While these experiences sharpened my analytical toolkit, I realised I wanted to apply these skills to problems that resonated more deeply with my personal values.</p>
                 <p>Consequently, I pivoted to an MSc in AI for Sustainable Development at UCL, moving from traditional statistics to advanced Deep Learning. Through my masters and my time working at Remote Sensing Solutions in Munich, I have worked on geospatial projects ranging from using computer vision to extract insights from satellite imagery and analysing acoustic patterns for biodiversity monitoring to leveraging LLMs for natural language processing tasks. While my research interests primarily focus on disaster response and water sustainability - from coral reef protection to coastal monitoring to aquifer quantification - I am driven by curiosity and eager to tackle challenges across the AI4EO landscape.</p>
                 <p>Outside of work, I am a keen sportsman and happiest when exploring the outdoors, whether hiking, cycling, or diving. Before starting my Master's, I spent six months backpacking across Pakistan, India, China, and Borneo, an experience that further cemented my commitment to protecting the natural world.</p>
+                
+                <div class="about-img-grid">
+                    <div>
+                        <img src="IMG_2574.jpg" class="about-img" alt="Pakistan">
+                        <div class="about-caption">Hiking to Rakaposhi basecamp in Pakistan</div>
+                    </div>
+                    <div>
+                        <img src="IMG_9090.jpg" class="about-img" alt="Java">
+                        <div class="about-caption">Summit of Mt Semeru, an active volcano in central Java</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
+    <div id="cvModal" class="modal-overlay">
+        <div class="modal-content" style="width: 90%; height: 90%; max-width: none;">
+            <span class="close-modal-btn" onclick="closeAllModals()">&times;</span>
+            <iframe id="cvFrame" src="" style="width: 100%; height: 100%; border: none; background: white;"></iframe>
+        </div>
+    </div>
+
     <script>
-        // DATA
+        // --- DATA ---
         const myProjects = [
-            { lat: -1.2921, lng: 36.8219, name: "Kenya", fullName: "EOAgriTwin - Kenya", desc: "Using computer vision to extract insights from satellite imagery for agricultural monitoring." },
-            { lat: 54.1153, lng: 4.3162, name: "N. Europe", fullName: "MSc Dissertation: Offshore Wind Power Forecasting", desc: "Investigates the application of transfer learning through weather specific models in offshore wind power forecasting. Focused on reducing reliance on large site-specific datasets." },
-            { lat: 41.9028, lng: 12.4964, name: "Italy", fullName: "EOAgriTwin - Italy", desc: "Satellite-based agricultural monitoring and Digital Twin integration." },
-            { lat: -15.8267, lng: -47.9218, name: "Brazil", fullName: "Amazon Basin Groundwater Monitoring", desc: "Multi-sensor machine learning approach using GRACE and Sentinel-1 to predict monthly groundwater storage changes." },
-            { lat: 42.6977, lng: 23.3219, name: "Bulgaria", fullName: "CarbComply - Bulgaria", desc: "Carbon compliance monitoring using geospatial AI." },
-            { lat: 48.2082, lng: 16.3738, name: "Austria", fullName: "CarbComply - Austria", desc: "Geospatial analysis for carbon reporting and compliance." },
-            { lat: 78.2232, lng: 15.6267, name: "Arctic", fullName: "Arctic: Ocean Eddies Detection", desc: "Detecting and calculating SSHA of ocean eddies using satellite imagery and machine learning." }
+            { lat: -1.2921, lng: 36.8219, name: "Kenya", fullName: "EOAgriTwin - Kenya", externalFile: "project-kenya.html" },
+            { lat: 54.1153, lng: 4.3162, name: "N. Europe", fullName: "MSc Dissertation: Wind Power Forecasting", desc: "My MSc dissertation, supervised by Professor Benjami Guedj, investigates the application of transfer learning through weather specific models in offshore wind power forecasting. The research focuses on reducing reliance on large site-specific datasets by developing a framework that rapidly generalises to target wind farms. Submitted the paper to Climate Informatics 2026.", github: "https://github.com/DomWeisser/offshore-wind-forecasting-2026" },
+            { lat: 41.9028, lng: 12.4964, name: "Italy", fullName: "EOAgriTwin - Italy", externalFile: "project-italy.html" },
+            { lat: -15.8267, lng: -47.9218, name: "Brazil", fullName: "Amazon Groundwater Monitoring", externalFile: "project-brazil.html", github: "https://github.com/DomWeisser/Multi-Scale-Groundwater-Monitoring-in-the-Amazon" },
+            { lat: 42.6977, lng: 23.3219, name: "Bulgaria", fullName: "CarbComply - Bulgaria", externalFile: "project-bulgaria.html" },
+            { lat: 48.2082, lng: 16.3738, name: "Austria", fullName: "CarbComply - Austria", externalFile: "project-austria.html" },
+            { lat: 78.2232, lng: 15.6267, name: "Arctic", fullName: "Arctic: Ocean Eddies Detection", externalFile: "project-arctic.html", github: "https://github.com/DomWeisser/Detecting-and-Calculating-SSHA-of-Ocean-Eddies" }
         ];
 
-        const layers = {
-            topo: { img: '//unpkg.com/three-globe/example/img/earth-blue-marble.jpg', bump: '//unpkg.com/three-globe/example/img/earth-topology.png' },
-            night: { img: '//unpkg.com/three-globe/example/img/earth-night.jpg', bump: '' },
-            ocean: { img: '//unpkg.com/three-globe/example/img/earth-water.png', bump: '' }
-        };
-
-        // INITIALIZE GLOBE
+        // --- GLOBE INIT ---
         const world = Globe()(document.getElementById('globeViz'))
-            .globeImageUrl(layers.topo.img)
-            .bumpImageUrl(layers.topo.bump)
+            .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+            .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
             .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
             .showAtmosphere(true)
             .atmosphereColor('#00ffcc')
             .atmosphereDaylightAlpha(0.1);
 
-        // SYNC DATA FUNCTION (Crucial fix for disappearing projects)
-        function syncData() {
+        // SYNC DATA (This function ensures markers exist on every layer)
+        function syncMarkers() {
             world.ringsData(myProjects)
                  .ringColor(() => '#00ffcc')
                  .ringMaxRadius(2.5)
                  .ringPropagationSpeed(1.5)
-                 .ringRepeatPeriod(2000)
                  .labelsData(myProjects)
                  .labelText('name')
                  .labelSize(1.4)
                  .labelColor(() => '#ffffff')
                  .labelDotRadius(0.4)
-                 .onLabelClick(openProject);
+                 .onLabelClick(openProjectModal);
         }
 
-        // LIGHTING (Crucial fix for topography visibility)
+        // LIGHTING (Fixes Topography visibility)
         const scene = world.scene();
         scene.add(new THREE.AmbientLight(0xffffff, 0.4));
         const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
@@ -161,47 +199,82 @@
 
         world.controls().autoRotate = true;
         world.controls().autoRotateSpeed = 0.5;
-        syncData();
+        syncMarkers();
 
-        // LAYER SWITCHER
-        function updateLayer(key, btn) {
-            world.globeImageUrl(layers[key].img);
-            world.bumpImageUrl(layers[key].bump);
+        // --- FUNCTIONS ---
+        function setLayer(type) {
+            const btns = document.querySelectorAll('.layer-btn');
+            btns.forEach(b => b.classList.remove('active'));
+
+            if (type === 'topo') {
+                world.globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+                     .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png');
+                document.getElementById('topo-btn').classList.add('active');
+            } else if (type === 'night') {
+                world.globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
+                     .bumpImageUrl('');
+                document.getElementById('night-btn').classList.add('active');
+            } else if (type === 'ocean') {
+                world.globeImageUrl('//unpkg.com/three-globe/example/img/earth-water.png')
+                     .bumpImageUrl('');
+                document.getElementById('ocean-btn').classList.add('active');
+            }
             
-            document.querySelectorAll('.layer-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            // Timeout ensures textures are loaded before drawing markers
-            setTimeout(syncData, 100);
+            // Re-sync after texture change to prevent "disappearing act"
+            setTimeout(syncMarkers, 100);
         }
 
-        // UI LOGIC
         function toggleSidebar() { document.getElementById('mySidebar').classList.toggle('open'); }
-        function closeModals() { 
-            document.getElementById('projectModal').style.display = 'none'; 
-            document.getElementById('aboutModal').style.display = 'none';
+        function toggleAccordion(id) { document.getElementById(id).classList.toggle('show'); }
+        function closeAllModals() { 
+            document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); 
             world.controls().autoRotate = true; 
         }
-        function openProject(d) {
-            document.getElementById('modalTitle').innerText = d.fullName;
-            document.getElementById('modalBody').innerText = d.desc;
-            document.getElementById('projectModal').style.display = 'block';
+
+        function openProjectModal(data) {
+            const modal = document.getElementById("projectModal");
+            document.getElementById("modalTitle").innerText = data.fullName;
+            const body = document.getElementById("modalBody");
+            
+            if (data.externalFile) {
+                body.innerHTML = 'Querying satellite data archives...';
+                fetch(data.externalFile).then(r => r.text()).then(html => body.innerHTML = html);
+            } else {
+                body.innerHTML = data.desc;
+            }
+
+            const links = document.getElementById("modalLinks");
+            links.innerHTML = "";
+            if (data.github) links.innerHTML += `<a href="${data.github}" target="_blank" class="btn">View Technical Repository</a>`;
+            
+            modal.style.display = "block";
             world.controls().autoRotate = false;
         }
-        function openAbout() { document.getElementById('aboutModal').style.display = 'block'; toggleSidebar(); world.controls().autoRotate = false; }
-        function openCV() { window.open('CV 2026.pdf', '_blank'); }
 
-        // Sidebar List
-        const list = document.getElementById('project-list');
+        function openAbout() { 
+            document.getElementById("aboutModal").style.display = "block"; 
+            toggleSidebar(); 
+            world.controls().autoRotate = false; 
+        }
+        
+        function openCV() { 
+            document.getElementById('cvFrame').src = "CV 2026.pdf";
+            document.getElementById("cvModal").style.display = "block"; 
+            toggleSidebar(); 
+            world.controls().autoRotate = false; 
+        }
+
+        // POPULATE SIDEBAR PROJECT LIST
+        const list = document.getElementById('project-list-container');
         myProjects.forEach(p => {
             const div = document.createElement('div');
-            div.style.cssText = "padding: 12px 0; border-bottom: 1px solid #1a1a1a; cursor: pointer; font-size: 0.8rem; color: #888;";
+            div.className = 'sidebar-project-link';
             div.innerHTML = `> ${p.fullName}`;
-            div.onclick = () => { openProject(p); toggleSidebar(); };
+            div.onclick = () => { openProjectModal(p); toggleSidebar(); };
             list.appendChild(div);
         });
 
-        window.onclick = e => { if(e.target.className === 'modal-overlay') closeModals(); }
+        window.onclick = e => { if(e.target.className === 'modal-overlay') closeAllModals(); }
     </script>
 </body>
 </html>
