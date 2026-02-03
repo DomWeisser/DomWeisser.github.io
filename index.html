@@ -178,7 +178,7 @@
         </div>
     </div>
 
-    <script>
+<script>
         // --- 1. DATA ---
         const myProjects = [
             { lat: -1.2921, lng: 36.8219, name: "Kenya", fullName: "EOAgriTwin - Kenya", desc: "Loading...", externalFile: "project-kenya.html" },
@@ -198,9 +198,6 @@
             .showAtmosphere(true)
             .atmosphereColor('#00ffcc')
             .atmosphereDaylightAlpha(0.2)
-            
-            // HTML ELEMENTS (Markers)
-            .htmlElementsData(myProjects)
             .htmlLat('lat')
             .htmlLng('lng')
             .htmlElement(d => {
@@ -208,55 +205,56 @@
                 el.className = 'project-dot';
                 el.onclick = (e) => { e.stopPropagation(); openProjectModal(d); };
                 return el;
-            });
+            })
+            // Initialize data
+            .htmlElementsData(myProjects);
 
         // --- 3. SCENE & LIGHTING ---
         const scene = world.scene();
-        
-        // Lighting is required for the bump map (Topography) to show
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
         scene.add(ambientLight);
         const dirLight = new THREE.DirectionalLight(0xffffff, 1.5);
         dirLight.position.set(15, 10, 5);
         scene.add(dirLight);
 
-        // CLOUD SPHERE (For Layer 3)
+        // CLOUD SPHERE (Layer 3)
         let cloudSphere;
         const cloudTex = new THREE.TextureLoader().load('//unpkg.com/three-globe/example/img/earth-clouds.png');
         const cloudGeo = new THREE.SphereGeometry(world.getGlobeRadius() * 1.01, 64, 64);
         const cloudMat = new THREE.MeshPhongMaterial({ map: cloudTex, transparent: true, opacity: 0.9, blending: THREE.AdditiveBlending });
         cloudSphere = new THREE.Mesh(cloudGeo, cloudMat);
-        cloudSphere.visible = false; // Hidden by default
+        cloudSphere.visible = false;
         scene.add(cloudSphere);
 
-        // Animate Clouds
         (function animate() {
             if (cloudSphere.visible) cloudSphere.rotation.y += 0.0004;
             requestAnimationFrame(animate);
         })();
 
-        // --- 4. LAYER SWITCHER (Fixed) ---
+        // --- 4. FIXED LAYER SWITCHER ---
         function setLayer(type) {
-            // Update Buttons
+            // 1. Update Buttons
             document.querySelectorAll('.layer-btn').forEach(b => b.classList.remove('active'));
             document.getElementById('btn-' + type).classList.add('active');
 
-            // Set Textures & Visibility
+            // 2. Change Textures
             if (type === 'topo') {
                 world.globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg');
                 world.bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png');
                 cloudSphere.visible = false;
             } else if (type === 'night') {
                 world.globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg');
-                world.bumpImageUrl(null); // Must be null for night lights
+                world.bumpImageUrl(null);
                 cloudSphere.visible = false;
             } else if (type === 'dynamics') {
                 world.globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg');
                 world.bumpImageUrl(null);
-                cloudSphere.visible = true; // Show clouds
+                cloudSphere.visible = true;
             }
 
-            // CRITICAL FIX: Re-sync markers after a short delay so they re-attach to the new globe mesh
+            // 3. THE FIX: Clear and Re-Populate HTML Elements
+            // We set it to an empty array first to force a clear, then back to data
+            world.htmlElementsData([]); 
             setTimeout(() => {
                 world.htmlElementsData(myProjects);
             }, 50);
@@ -296,7 +294,6 @@
 
         function openAbout() {
             closeAllModals();
-            // Original Text Preserved
             const aboutText = `
                 <p>I am a AI researcher and Data Scientist dedicated to leveraging machine learning to solve environmental challenges. Born in Thailand and raised across Germany, Turkey, Qatar, and Spain, I developed an early appreciation for the natural world and a firsthand understanding of how environmental changes disproportionately impact different regions. My academic journey began at the University of Warwick with a BMORSE (Mathematics, Operational Research, Statistics, and Economics) which focused heavily on pure mathematical and statistical theory. This led me to roles as an Actuarial Graduate and to sport statistics. While these experiences sharpened my analytical toolkit, I realised I wanted to apply these skills to problems that resonated more deeply with my personal values.</p>
                 <p>Consequently, I pivoted to an MSc in AI for Sustainable Development at UCL, moving from traditional statistics to advanced Deep Learning. Through my masters and my time working at Remote Sensing Solutions in Munich, I have worked on geospatial projects ranging from using computer vision to extract insights from satellite imagery and analysing acoustic patterns for biodiversity monitoring to leveraging LLMs for natural language processing tasks. While my research interests primarily focus on disaster response and water sustainability - from coral reef protection to coastal monitoring to aquifer quantification - I am driven by curiosity and eager to tackle challenges across the AI4EO landscape.</p>
@@ -312,12 +309,10 @@
 
         function openCV() { closeAllModals(); document.getElementById('cvFrame').src = "CV 2026.pdf"; document.getElementById('cvModal').style.display = 'block'; toggleSidebar(); world.controls().autoRotate = false; }
 
-        // Slider Logic
         function moveSlider() { const s = document.getElementById("slider"), o = document.getElementById("imgOverlay"), h = document.getElementById("sliderHandle"); if(s && o) { o.style.width = s.value + "%"; if(h) h.style.left = s.value + "%"; }}
         function resizeComparisonImage() { const c = document.getElementById("comparisonContainer"), i = document.querySelector("#imgOverlay img"); if(c && i) i.style.width = c.offsetWidth + "px"; }
         window.addEventListener('resize', resizeComparisonImage);
 
-        // Populate Sidebar
         const list = document.getElementById('project-list-wrapper');
         myProjects.forEach(p => {
             const div = document.createElement('div');
