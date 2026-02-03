@@ -26,10 +26,10 @@
         h1 { margin: 0; font-size: 2.5rem; letter-spacing: -1px; text-shadow: 0 4px 8px rgba(0,0,0,1); background: -webkit-linear-gradient(0deg, #fff, #aaa); -webkit-background-clip: text; -webkit-text-fill-color: transparent;}
         .subtitle { color: var(--accent-color); font-size: 0.95rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; text-shadow: 0 2px 4px rgba(0,0,0,1); }
         
-        /* MENU BUTTON - MOVED DOWN */
+        /* MENU BUTTON - MOVED DOWN to 90px */
         .menu-btn { 
             position: fixed; 
-            top: 90px; /* MOVED DOWN to clear header */
+            top: 90px; 
             left: 20px; 
             z-index: 20; 
             background: rgba(0, 0, 0, 0.5); 
@@ -92,7 +92,6 @@
         .about-img { width: 100%; border-radius: 5px; border: 1px solid #444; }
         .about-caption { font-size: 0.8rem; color: #888; margin-top: 5px; text-align: center; font-style: italic; }
 
-        /* SCROLLBAR */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
@@ -121,8 +120,8 @@
     <div class="layer-control">
         <div class="layer-title">Data Layers</div>
         <button class="layer-btn active" onclick="setLayer('night')">Night Lights (Socio-Econ)</button>
-        <button class="layer-btn" onclick="setLayer('satellite')">Visual (Satellite)</button>
-        <button class="layer-btn" onclick="setLayer('heatmap')">CO2 Flux (AI Model)</button>
+        <button class="layer-btn" onclick="setLayer('satellite')">Visual (Original)</button>
+        <button class="layer-btn" onclick="setLayer('topo')">Topography (3D Elevation)</button>
     </div>
 
     <div class="sidebar" id="mySidebar">
@@ -155,7 +154,7 @@
             <h2 style="color: var(--accent-color); margin-top: 0;">My Journey</h2>
             <div style="color: #ddd; line-height: 1.8;">
                 <p>I am a AI researcher and Data Scientist dedicated to leveraging machine learning to solve environmental challenges...</p>
-                <div class="about-img-grid">
+                 <div class="about-img-grid">
                     <div class="img-container">
                         <img src="IMG_2574.jpg" class="about-img" alt="My Trip">
                         <div class="about-caption">Hiking to Rakaposhi basecamp in Pakistan</div>
@@ -197,22 +196,16 @@
             color: ['rgba(0, 255, 204, 0)', 'rgba(0, 255, 204, 1)']
         }));
 
-        // --- DUMMY DATA FOR "AI FLUX" LAYER (Simulating Global CO2/Heat) ---
-        // This solves your resolution issue by using vector geometry instead of a low-res image.
-        const N_HEX = 2000;
-        const hexData = [...Array(N_HEX).keys()].map(() => ({
-            lat: (Math.random() - 0.5) * 160,
-            lng: (Math.random() - 0.5) * 360,
-            weight: Math.random() * 0.8
-        }));
-
         function toggleSidebar() { document.getElementById('mySidebar').classList.toggle('open'); }
         function toggleAccordion(id) { document.getElementById(id).classList.toggle('show'); }
 
+        // --- TEXTURES (High Resolution Setup) ---
         const textures = {
             night: '//unpkg.com/three-globe/example/img/earth-night.jpg',
+            // ORIGINAL VISUAL (Blue Marble)
             satellite: '//unpkg.com/three-globe/example/img/earth-blue-marble.jpg',
-            clouds: '//unpkg.com/three-globe/example/img/earth-clouds.png' // New texture
+            // HIGH-RES TOPOGRAPHY (Bathymetry + Elevation)
+            topo: '//unpkg.com/three-globe/example/img/earth-topology.png'
         };
 
         const world = Globe()
@@ -223,29 +216,25 @@
             .atmosphereColor('#3a228a')
             .atmosphereAltitude(0.15)
             
-            // --- FIX 1: THE HITBOX ---
-            // We create a larger invisible container (50px) to hold the smaller visible dot
+            // --- HITBOX MARKERS (Easy Click) ---
             .htmlElementsData(myProjects)
             .htmlLat('lat')
             .htmlLng('lng')
             .htmlElement(d => {
                 const el = document.createElement('div');
-                
-                // Styles for the HITBOX (The invisible clickable area)
                 el.style.width = '50px';
                 el.style.height = '50px';
                 el.style.display = 'flex';
                 el.style.alignItems = 'center';
                 el.style.justifyContent = 'center';
                 el.style.cursor = 'pointer';
-                el.style.transform = 'translate(-50%, -50%)'; // Ensure the center of the box is on the lat/lng
+                el.style.transform = 'translate(-50%, -50%)';
 
-                // If it's the home node, we might want to hide it or show a different marker
                 if(d.type === 'home') return el; 
 
-                // The inner visible dot (Visual Only)
                 el.innerHTML = `
-                    <div style="pointer-events: none;"> <div style="
+                    <div style="pointer-events: none;">
+                        <div style="
                             width: 12px; height: 12px; 
                             background: ${d.color}; 
                             border-radius: 50%; 
@@ -260,14 +249,11 @@
                     <style>@keyframes pulse { 0% { opacity: 1; transform: translate(-50%, -50%) scale(0.5); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(2); } }</style>
                 `;
                 
-                // Click listener on the large hitbox
-                el.onclick = (e) => {
-                    e.stopPropagation(); // Prevent map click
-                    openProjectModal(d);
-                };
+                el.onclick = (e) => { e.stopPropagation(); openProjectModal(d); };
                 return el;
             })
 
+            // ARCS
             .arcsData(arcsData)
             .arcColor('color')
             .arcDashLength(0.4)
@@ -276,7 +262,7 @@
             .arcDashAnimateTime(2000)
             .arcStroke(1)
 
-            // Labels
+            // LABELS
             .labelsData(myProjects)
             .labelLat('lat')
             .labelLng('lng')
@@ -287,65 +273,37 @@
             .labelAltitude(0.03)
             .onLabelClick(openProjectModal);
 
-        // --- ADD CLOUDS (The "Live" Look) ---
-        // We create a custom Three.js Sphere for clouds that sits on top of the globe
-        const CLOUD_ALTITUDE = 0.004;
-        const CLOUD_ROTATION_SPEED = -0.006; // Clouds move slower/independently
-        
-        new THREE.TextureLoader().load(textures.clouds, cloudsTexture => {
-            // Create a sphere mesh
-            const cloudGeometry = new THREE.SphereGeometry(world.getGlobeRadius() * (1 + CLOUD_ALTITUDE), 75, 75);
-            const cloudMaterial = new THREE.MeshPhongMaterial({
-                map: cloudsTexture,
-                transparent: true,
-                opacity: 0.8,
-                blending: THREE.AdditiveBlending,
-                side: THREE.DoubleSide
-            });
-            const cloudMesh = new THREE.Mesh(cloudGeometry, cloudMaterial);
-            
-            // Add it to the globe's scene
-            world.scene().add(cloudMesh);
-        
-            // Animate clouds rotating independently
-            (function rotateClouds() {
-                cloudMesh.rotation.y += CLOUD_ROTATION_SPEED * Math.PI / 180;
-                requestAnimationFrame(rotateClouds);
-            })();
-        });
-
         // --- LAYER LOGIC ---
         function setLayer(type) {
             document.querySelectorAll('.layer-btn').forEach(b => b.classList.remove('active'));
             event.target.classList.add('active');
 
-            // Reset special layers
-            world.hexBinPointsData([]); 
+            // 1. Reset special 3D props
+            world.bumpImageUrl(null); // Clear bump map
             
             if(type === 'satellite') {
+                // VISUAL: Original Texture, NO Atmosphere (Crisp look)
                 world.globeImageUrl(textures.satellite);
-                world.atmosphereColor('lightskyblue'); 
-                world.atmosphereAltitude(0.1); // FIX: Lowered altitude to reduce glare/brightness
+                world.showAtmosphere(false); // Disable glow for crispness
             } 
             else if (type === 'night') {
+                // NIGHT: Dark Texture + Cyber Atmosphere
                 world.globeImageUrl(textures.night);
+                world.showAtmosphere(true);
                 world.atmosphereColor('#3a228a');
                 world.atmosphereAltitude(0.15);
             } 
-            else if (type === 'heatmap') {
-                // THE "CUTTING EDGE" LAYER
-                // Switches to a dark base and renders 3D Data Hexagons
-                world.globeImageUrl(textures.night);
-                world.atmosphereColor('#ff0055'); // Aggressive "Data" color
+            else if (type === 'topo') {
+                // TOPO: Elevation Texture + BUMP MAP (3D Depth)
+                // We use the same image for color and displacement. 
+                // Light areas (mountains) pop up, dark areas (oceans) sink.
+                world.globeImageUrl(textures.topo);
+                world.bumpImageUrl(textures.topo); // <--- This adds the 3D depth
+                world.bumpScale(10); // <--- Exaggerate the height for effect
                 
-                // Render the Hex Bins
-                world.hexBinPointsData(hexData)
-                     .hexBinPointWeight('weight')
-                     .hexAltitude(d => d.sumWeight * 0.15) // Height based on "data"
-                     .hexBinResolution(3.5) 
-                     .hexTopColor(d => 'rgba(255, 0, 85, 1)')
-                     .hexSideColor(d => 'rgba(255, 0, 85, 0.1)')
-                     .hexBinMerge(true);
+                world.showAtmosphere(true);
+                world.atmosphereColor('#ffffff'); // White/Clean atmosphere
+                world.atmosphereAltitude(0.1);
             }
         }
 
