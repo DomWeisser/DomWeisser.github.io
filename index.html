@@ -6,65 +6,58 @@
     <title>Dominic Weisser | AI & Earth Observation</title>
     <script src="//unpkg.com/three@0.148.0/build/three.min.js"></script>
     <script src="//unpkg.com/globe.gl@2.26.4/dist/globe.gl.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            --sidebar-width: 320px;
-            --bg-color: #010204;
+            --sidebar-width: 350px;
+            --bg-color: #020408;
             --accent-color: #00ffcc;
-            --glass-bg: rgba(6, 9, 15, 0.95);
+            --glass-bg: rgba(13, 17, 23, 0.96);
+            --border: 1px solid rgba(0, 255, 204, 0.2);
         }
 
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; background: var(--bg-color); color: #fff; font-family: 'Inter', sans-serif; overflow: hidden; }
         #globeViz { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; }
 
-        /* HUD Header */
+        /* UI: Professional HUD Header */
         .header-overlay { 
-            position: absolute; top: 30px; left: 80px; z-index: 10; pointer-events: none;
-            border-left: 3px solid var(--accent-color); padding-left: 20px;
+            position: absolute; top: 35px; left: 90px; z-index: 10; pointer-events: none;
+            border-left: 2px solid var(--accent-color); padding-left: 20px;
         }
-        h1 { margin: 0; font-size: 1.8rem; letter-spacing: 3px; text-transform: uppercase; font-weight: 700; }
-        .subtitle { color: var(--accent-color); font-size: 0.8rem; font-family: 'JetBrains Mono', monospace; margin-top: 5px; letter-spacing: 1px; }
+        h1 { margin: 0; font-size: 1.6rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 600; }
+        .subtitle { color: var(--accent-color); font-size: 0.75rem; font-family: 'JetBrains Mono'; margin-top: 4px; opacity: 0.8; }
 
-        /* Scanning Line Effect */
-        .header-overlay::after {
-            content: ""; position: absolute; top: 0; left: -3px; width: 3px; height: 100%;
-            background: var(--accent-color); animation: scan 2s linear infinite;
+        /* UI: Modern Nav Button */
+        .nav-toggle {
+            position: fixed; top: 30px; left: 25px; z-index: 30;
+            background: var(--glass-bg); border: var(--border); color: var(--accent-color);
+            padding: 12px 15px; border-radius: 4px; cursor: pointer;
+            font-family: 'JetBrains Mono'; font-size: 0.8rem; letter-spacing: 1px;
+            transition: 0.3s; display: flex; align-items: center; gap: 8px;
         }
-        @keyframes scan { 0% { height: 0%; top: 0; } 50% { height: 100%; top: 0; } 100% { height: 0%; top: 100%; } }
+        .nav-toggle:hover { background: var(--accent-color); color: #000; box-shadow: 0 0 15px var(--accent-color); }
 
-        /* Layer Switcher */
+        /* UI: Layer Controls */
         .layer-control {
             position: absolute; bottom: 40px; right: 30px; z-index: 20;
-            background: var(--glass-bg); padding: 20px; border-radius: 12px;
-            border: 1px solid rgba(0, 255, 204, 0.2); display: flex; flex-direction: column; gap: 10px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.8); backdrop-filter: blur(10px);
+            background: var(--glass-bg); padding: 20px; border-radius: 8px;
+            border: var(--border); display: flex; flex-direction: column; gap: 10px;
+            backdrop-filter: blur(10px);
         }
+        .layer-label { font-size: 0.6rem; color: #666; font-family: 'JetBrains Mono'; margin-bottom: 5px; letter-spacing: 1px; }
         .layer-btn {
             background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
-            color: #666; padding: 12px 18px; font-size: 0.75rem; cursor: pointer;
-            border-radius: 6px; text-transform: uppercase; font-family: 'JetBrains Mono', monospace;
-            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1); text-align: left;
+            color: #888; padding: 10px 15px; font-size: 0.7rem; cursor: pointer;
+            border-radius: 4px; font-family: 'JetBrains Mono'; transition: 0.3s; text-align: left;
         }
-        .layer-btn:hover { background: rgba(0, 255, 204, 0.05); color: #fff; }
-        .layer-btn.active { border-color: var(--accent-color); color: var(--accent-color); background: rgba(0, 255, 204, 0.1); box-shadow: 0 0 15px rgba(0, 255, 204, 0.1); }
+        .layer-btn.active { border-color: var(--accent-color); color: var(--accent-color); background: rgba(0, 255, 204, 0.1); }
 
-        /* UI elements */
-        .menu-btn { position: fixed; top: 25px; left: 20px; z-index: 30; background: var(--glass-bg); color: var(--accent-color); border: 1px solid var(--accent-color); padding: 12px 15px; border-radius: 8px; cursor: pointer; font-family: 'JetBrains Mono'; }
-        .sidebar { position: fixed; left: 0; top: 0; width: var(--sidebar-width); height: 100%; background: var(--glass-bg); z-index: 25; transform: translateX(-100%); transition: 0.5s cubic-bezier(0.77, 0, 0.175, 1); padding: 100px 40px; box-sizing: border-box; border-right: 1px solid rgba(255,255,255,0.05); }
+        /* Sidebar & Modals (Original Content preserved) */
+        .sidebar { position: fixed; left: 0; top: 0; width: var(--sidebar-width); height: 100%; background: var(--glass-bg); z-index: 25; transform: translateX(-100%); transition: 0.4s cubic-bezier(0.16, 1, 0.3, 1); padding: 100px 40px; box-sizing: border-box; border-right: 1px solid #333; overflow-y: auto; }
         .sidebar.open { transform: translateX(0); }
-        .close-btn { position: absolute; top: 30px; right: 30px; cursor: pointer; color: var(--accent-color); font-size: 1.5rem; }
-
-        /* Modal Styles */
-        .modal-overlay { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); }
-        .modal-content { background: #080a0f; margin: 5% auto; padding: 50px; border: 1px solid rgba(0, 255, 204, 0.3); width: 80%; max-width: 800px; border-radius: 4px; position: relative; }
-        .modal-content h2 { margin-top: 0; letter-spacing: 1px; text-transform: uppercase; }
-
-        /* Image Comparison Container */
-        .comparison-container { position: relative; width: 100%; margin: 30px 0; border: 1px solid #222; overflow: hidden; }
-        .img-overlay { position: absolute; top: 0; left: 0; width: 50%; height: 100%; overflow: hidden; border-right: 2px solid var(--accent-color); z-index: 2; }
-        .slider-input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: ew-resize; z-index: 10; }
+        .modal-overlay { display: none; position: fixed; z-index: 100; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); backdrop-filter: blur(8px); }
+        .modal-content { background: #0d1117; margin: 5% auto; padding: 40px; border: var(--border); width: 80%; max-width: 800px; border-radius: 4px; position: relative; }
     </style>
 </head>
 
@@ -76,113 +69,139 @@
         <div class="subtitle">AI for Sustainable Development & Earth Observation</div>
     </div>
 
+    <button class="nav-toggle" onclick="toggleSidebar()">
+        <span>MENU</span>
+    </button>
+
     <div class="layer-control">
-        <button class="layer-btn active" onclick="setLayer('topo', this)">01. Topography & Terrain</button>
-        <button class="layer-btn" onclick="setLayer('night', this)">02. Socio-Economic (Night)</button>
-        <button class="layer-btn" onclick="setLayer('currents', this)">03. Ocean Current Flow</button>
+        <div class="layer-label">VIEWPORT DATA LAYERS</div>
+        <button class="layer-btn active" onclick="updateLayer('topo', this)">01. TOPOGRAPHY & TERRAIN</button>
+        <button class="layer-btn" onclick="updateLayer('night', this)">02. SOCIO-ECONOMIC (NIGHT)</button>
+        <button class="layer-btn" onclick="updateLayer('ocean', this)">03. OCEAN CURRENT PATTERNS</button>
     </div>
 
-    <button class="menu-btn" onclick="toggleSidebar()">[ MENU ]</button>
-
     <div class="sidebar" id="mySidebar">
-        <span class="close-btn" onclick="toggleSidebar()">&times;</span>
-        <h2 style="color: var(--accent-color); font-size: 1rem; letter-spacing: 2px;">PROJECT INDEX</h2>
+        <div onclick="toggleSidebar()" style="position: absolute; top: 35px; right: 35px; cursor: pointer; font-family: 'JetBrains Mono'; color: #666;">[ CLOSE ]</div>
+        <h2 style="color: var(--accent-color); font-size: 1rem; letter-spacing: 1px;">PROJECT REPOSITORY</h2>
         <div id="project-list" style="margin-top: 30px;"></div>
+        <div style="margin-top: 40px; border-top: 1px solid #333; padding-top: 20px;">
+            <button onclick="openAbout()" style="background:none; border:none; color:#fff; font-family: 'JetBrains Mono'; cursor:pointer; font-size: 0.9rem;">> ABOUT JOURNEY</button><br><br>
+            <button onclick="openCV()" style="background:none; border:none; color:#fff; font-family: 'JetBrains Mono'; cursor:pointer; font-size: 0.9rem;">> VIEW CV / PDF</button>
+        </div>
     </div>
 
     <div id="projectModal" class="modal-overlay">
         <div class="modal-content">
-            <span onclick="closeModal()" style="position: absolute; top: 20px; right: 30px; cursor: pointer; font-size: 2rem;">&times;</span>
-            <h2 id="modalTitle" style="color: var(--accent-color);"></h2>
-            <div id="modalBody" style="line-height: 1.8; color: #aaa; font-size: 0.95rem;"></div>
+            <span onclick="closeModals()" style="position: absolute; top: 20px; right: 30px; cursor: pointer; font-size: 1.5rem;">&times;</span>
+            <h2 id="modalTitle" style="color: var(--accent-color); letter-spacing: 1px;"></h2>
+            <div id="modalBody" style="line-height: 1.8; color: #ccc; margin-top: 20px; font-size: 0.95rem;"></div>
+        </div>
+    </div>
+
+    <div id="aboutModal" class="modal-overlay">
+        <div class="modal-content" style="max-height: 80vh; overflow-y: auto;">
+            <span onclick="closeModals()" style="position: absolute; top: 20px; right: 30px; cursor: pointer;">&times;</span>
+            <h2 style="color: var(--accent-color);">My Journey</h2>
+            <div id="aboutText" style="line-height: 1.7; color: #ccc;">
+                <p>I am a AI researcher and Data Scientist dedicated to leveraging machine learning to solve environmental challenges. Born in Thailand and raised across Germany, Turkey, Qatar, and Spain, I developed an early appreciation for the natural world and a firsthand understanding of how environmental changes disproportionately impact different regions. My academic journey began at the University of Warwick with a BMORSE (Mathematics, Operational Research, Statistics, and Economics) which focused heavily on pure mathematical and statistical theory. This led me to roles as an Actuarial Graduate and to sport statistics. While these experiences sharpened my analytical toolkit, I realised I wanted to apply these skills to problems that resonated more deeply with my personal values.</p>
+                <p>Consequently, I pivoted to an MSc in AI for Sustainable Development at UCL, moving from traditional statistics to advanced Deep Learning. Through my masters and my time working at Remote Sensing Solutions in Munich, I have worked on geospatial projects ranging from using computer vision to extract insights from satellite imagery and analysing acoustic patterns for biodiversity monitoring to leveraging LLMs for natural language processing tasks. While my research interests primarily focus on disaster response and water sustainability - from coral reef protection to coastal monitoring to aquifer quantification - I am driven by curiosity and eager to tackle challenges across the AI4EO landscape.</p>
+                <p>Outside of work, I am a keen sportsman and happiest when exploring the outdoors, whether hiking, cycling, or diving. Before starting my Master's, I spent six months backpacking across Pakistan, India, China, and Borneo, an experience that further cemented my commitment to protecting the natural world.</p>
+            </div>
         </div>
     </div>
 
     <script>
+        // DATA
         const myProjects = [
-            { lat: -1.2921, lng: 36.8219, name: "Kenya", fullName: "EOAgriTwin - Kenya" },
-            { lat: 54.1153, lng: 4.3162, name: "Northern Europe", fullName: "MSc Dissertation: Wind Power Forecasting", desc: "Supervised by Professor Benjami Guedj, investigating transfer learning through meteorological clusters." },
-            { lat: 41.9028, lng: 12.4964, name: "Italy", fullName: "EOAgriTwin - Italy" },
-            { lat: -15.8267, lng: -47.9218, name: "Brazil", fullName: "Amazon Groundwater Monitoring" },
-            { lat: 42.6977, lng: 23.3219, name: "Bulgaria", fullName: "CarbComply - Bulgaria" },
-            { lat: 48.2082, lng: 16.3738, name: "Austria", fullName: "CarbComply - Austria" },
-            { lat: 78.2232, lng: 15.6267, name: "Arctic", fullName: "Arctic: Ocean Eddies Detection" }
+            { lat: -1.2921, lng: 36.8219, name: "Kenya", fullName: "EOAgriTwin - Kenya", desc: "Using computer vision to extract insights from satellite imagery for agricultural monitoring." },
+            { lat: 54.1153, lng: 4.3162, name: "N. Europe", fullName: "MSc Dissertation: Offshore Wind Power Forecasting", desc: "Investigates the application of transfer learning through weather specific models in offshore wind power forecasting. Focused on reducing reliance on large site-specific datasets." },
+            { lat: 41.9028, lng: 12.4964, name: "Italy", fullName: "EOAgriTwin - Italy", desc: "Satellite-based agricultural monitoring and Digital Twin integration." },
+            { lat: -15.8267, lng: -47.9218, name: "Brazil", fullName: "Amazon Basin Groundwater Monitoring", desc: "Multi-sensor machine learning approach using GRACE and Sentinel-1 to predict monthly groundwater storage changes." },
+            { lat: 42.6977, lng: 23.3219, name: "Bulgaria", fullName: "CarbComply - Bulgaria", desc: "Carbon compliance monitoring using geospatial AI." },
+            { lat: 48.2082, lng: 16.3738, name: "Austria", fullName: "CarbComply - Austria", desc: "Geospatial analysis for carbon reporting and compliance." },
+            { lat: 78.2232, lng: 15.6267, name: "Arctic", fullName: "Arctic: Ocean Eddies Detection", desc: "Detecting and calculating SSHA of ocean eddies using satellite imagery and machine learning." }
         ];
 
-        // CONFIG
+        const layers = {
+            topo: { img: '//unpkg.com/three-globe/example/img/earth-blue-marble.jpg', bump: '//unpkg.com/three-globe/example/img/earth-topology.png' },
+            night: { img: '//unpkg.com/three-globe/example/img/earth-night.jpg', bump: '' },
+            ocean: { img: '//unpkg.com/three-globe/example/img/earth-water.png', bump: '' }
+        };
+
+        // INITIALIZE GLOBE
         const world = Globe()(document.getElementById('globeViz'))
-            .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
-            .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
+            .globeImageUrl(layers.topo.img)
+            .bumpImageUrl(layers.topo.bump)
             .backgroundImageUrl('//unpkg.com/three-globe/example/img/night-sky.png')
             .showAtmosphere(true)
             .atmosphereColor('#00ffcc')
-            .atmosphereDaylightAlpha(0.1)
-            // Rings
-            .ringsData(myProjects)
-            .ringColor(() => '#00ffcc')
-            .ringMaxRadius(2.5)
-            .ringPropagationSpeed(1)
-            // Labels
-            .labelsData(myProjects)
-            .labelText('name')
-            .labelSize(1.6)
-            .labelColor(() => '#ffffff')
-            .labelDotRadius(0.4)
-            .onLabelClick(openProject);
+            .atmosphereDaylightAlpha(0.1);
 
-        // LIGHTING (Fixes Topography visibility)
+        // SYNC DATA FUNCTION (Crucial fix for disappearing projects)
+        function syncData() {
+            world.ringsData(myProjects)
+                 .ringColor(() => '#00ffcc')
+                 .ringMaxRadius(2.5)
+                 .ringPropagationSpeed(1.5)
+                 .ringRepeatPeriod(2000)
+                 .labelsData(myProjects)
+                 .labelText('name')
+                 .labelSize(1.4)
+                 .labelColor(() => '#ffffff')
+                 .labelDotRadius(0.4)
+                 .onLabelClick(openProject);
+        }
+
+        // LIGHTING (Crucial fix for topography visibility)
         const scene = world.scene();
-        scene.add(new THREE.AmbientLight(0xbbbbbb, 0.3));
-        const dLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        dLight.position.set(1, 1, 1);
-        scene.add(dLight);
+        scene.add(new THREE.AmbientLight(0xffffff, 0.4));
+        const dirLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        dirLight.position.set(5, 3, 5);
+        scene.add(dirLight);
 
         world.controls().autoRotate = true;
-        world.controls().autoRotateSpeed = 0.6;
+        world.controls().autoRotateSpeed = 0.5;
+        syncData();
 
-        // LAYER LOGIC
-        function setLayer(type, btn) {
+        // LAYER SWITCHER
+        function updateLayer(key, btn) {
+            world.globeImageUrl(layers[key].img);
+            world.bumpImageUrl(layers[key].bump);
+            
             document.querySelectorAll('.layer-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
 
-            if (type === 'topo') {
-                world.globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
-                     .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png');
-            } else if (type === 'night') {
-                world.globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
-                     .bumpImageUrl('');
-            } else if (type === 'currents') {
-                // High-End Ocean Flow Texture
-                world.globeImageUrl('https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/datasets/earth-water.png')
-                     .bumpImageUrl('');
-            }
-            
-            // Re-sync projects
-            world.ringsData(myProjects).labelsData(myProjects);
+            // Timeout ensures textures are loaded before drawing markers
+            setTimeout(syncData, 100);
         }
 
-        // UI FUNCTIONS
+        // UI LOGIC
         function toggleSidebar() { document.getElementById('mySidebar').classList.toggle('open'); }
-        function closeModal() { document.getElementById('projectModal').style.display = 'none'; world.controls().autoRotate = true; }
-        
+        function closeModals() { 
+            document.getElementById('projectModal').style.display = 'none'; 
+            document.getElementById('aboutModal').style.display = 'none';
+            world.controls().autoRotate = true; 
+        }
         function openProject(d) {
             document.getElementById('modalTitle').innerText = d.fullName;
-            document.getElementById('modalBody').innerText = d.desc || "Analysis for this project is integrated within the AI4EO framework. Visualizing multi-sensor data pipelines...";
+            document.getElementById('modalBody').innerText = d.desc;
             document.getElementById('projectModal').style.display = 'block';
             world.controls().autoRotate = false;
         }
+        function openAbout() { document.getElementById('aboutModal').style.display = 'block'; toggleSidebar(); world.controls().autoRotate = false; }
+        function openCV() { window.open('CV 2026.pdf', '_blank'); }
 
-        // Project List
+        // Sidebar List
         const list = document.getElementById('project-list');
         myProjects.forEach(p => {
-            const el = document.createElement('div');
-            el.style.cssText = "padding: 12px 0; border-bottom: 1px solid #111; cursor: pointer; color: #888; font-size: 0.8rem;";
-            el.innerHTML = `> ${p.fullName}`;
-            el.onmouseover = () => el.style.color = 'var(--accent-color)';
-            el.onmouseout = () => el.style.color = '#888';
-            el.onclick = () => { openProject(p); toggleSidebar(); };
-            list.appendChild(el);
+            const div = document.createElement('div');
+            div.style.cssText = "padding: 12px 0; border-bottom: 1px solid #1a1a1a; cursor: pointer; font-size: 0.8rem; color: #888;";
+            div.innerHTML = `> ${p.fullName}`;
+            div.onclick = () => { openProject(p); toggleSidebar(); };
+            list.appendChild(div);
         });
+
+        window.onclick = e => { if(e.target.className === 'modal-overlay') closeModals(); }
     </script>
 </body>
 </html>
