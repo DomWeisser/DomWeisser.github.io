@@ -199,13 +199,19 @@
         function toggleSidebar() { document.getElementById('mySidebar').classList.toggle('open'); }
         function toggleAccordion(id) { document.getElementById(id).classList.toggle('show'); }
 
-        // --- TEXTURES (High Resolution Setup) ---
+        // --- TEXTURES ---
         const textures = {
             night: '//unpkg.com/three-globe/example/img/earth-night.jpg',
-            // ORIGINAL VISUAL (Blue Marble)
             satellite: '//unpkg.com/three-globe/example/img/earth-blue-marble.jpg',
-            // HIGH-RES TOPOGRAPHY (Bathymetry + Elevation)
-            topo: '//unpkg.com/three-globe/example/img/earth-topology.png'
+            
+            // --- TOPOGRAPHY COLOR TEXTURE (Download Instructions) ---
+            // Go to: https://www.solarsystemscope.com/textures/
+            // Download "Earth Day Map" (8k Resolution is best)
+            // Save it in your folder as "earth-topology-color.jpg"
+            topoSkin: 'earth-topology-color.jpg', 
+            
+            // This is the "Bump Map" (Height data) - keep this as the grayscale one!
+            topoBump: '//unpkg.com/three-globe/example/img/earth-topology.png'
         };
 
         const world = Globe()
@@ -216,7 +222,7 @@
             .atmosphereColor('#3a228a')
             .atmosphereAltitude(0.15)
             
-            // --- HITBOX MARKERS (Easy Click) ---
+            // --- HITBOX MARKERS ---
             .htmlElementsData(myProjects)
             .htmlLat('lat')
             .htmlLng('lng')
@@ -273,118 +279,114 @@
             .labelAltitude(0.03)
             .onLabelClick(openProjectModal);
 
-        // --- LAYER LOGIC ---
-        function setLayer(type) {
-            document.querySelectorAll('.layer-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
+    // --- MATERIAL SETTINGS (Remove the "Plastic" Look) ---
+    world.onGlobeReady(() => {
+        const globeMaterial = world.globeMaterial();
+        globeMaterial.specular = new THREE.Color(0x000000); // Black = No shine
+        globeMaterial.shininess = 0; // Matte finish
+    });
 
-            // 1. Reset special 3D props
-            world.bumpImageUrl(null); // Clear bump map
-            
-            if(type === 'satellite') {
-                // VISUAL: Original Texture, NO Atmosphere (Crisp look)
-                world.globeImageUrl(textures.satellite);
-                world.showAtmosphere(false); // Disable glow for crispness
-            } 
-            else if (type === 'night') {
-                // NIGHT: Dark Texture + Cyber Atmosphere
-                world.globeImageUrl(textures.night);
-                world.showAtmosphere(true);
-                world.atmosphereColor('#3a228a');
-                world.atmosphereAltitude(0.15);
-            } 
-            else if (type === 'topo') {
-                // TOPO: Elevation Texture + BUMP MAP (3D Depth)
-                // We use the same image for color and displacement. 
-                // Light areas (mountains) pop up, dark areas (oceans) sink.
-                world.globeImageUrl(textures.topo);
-                world.bumpImageUrl(textures.topo); // <--- This adds the 3D depth
-                world.bumpScale(10); // <--- Exaggerate the height for effect
-                
-                world.showAtmosphere(true);
-                world.atmosphereColor('#ffffff'); // White/Clean atmosphere
-                world.atmosphereAltitude(0.1);
-            }
+    // --- LAYER LOGIC ---
+    function setLayer(type) {
+        document.querySelectorAll('.layer-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+
+        // Reset special 3D props
+        world.bumpImageUrl(null); 
+        
+        if(type === 'satellite') {
+            world.globeImageUrl(textures.satellite);
+            world.showAtmosphere(false); 
+        } 
+        else if (type === 'night') {
+            world.globeImageUrl(textures.night);
+            world.showAtmosphere(true);
+            world.atmosphereColor('#3a228a');
+            world.atmosphereAltitude(0.15);
+        } 
+        else if (type === 'topo') {
+            world.globeImageUrl(textures.topoSkin);
+            world.bumpImageUrl(textures.topoBump);
+            world.bumpScale(10); 
+            world.showAtmosphere(true);
+            world.atmosphereColor('#ffffff');
+            world.atmosphereAltitude(0.12);
+        }
+    }
+
+    // Camera & Controls (FIX: autoRotate set to false)
+    world.pointOfView({ lat: 20, lng: 0, altitude: 2.2 });
+    world.controls().autoRotate = false; // <--- DISABLED ROTATION HERE
+    world.controls().enableZoom = true;
+    
+    // Modals & Project List Logic
+    const projectModal = document.getElementById("projectModal");
+    const aboutModal = document.getElementById("aboutModal");
+    const cvModal = document.getElementById("cvModal");
+
+    function closeAllModals() {
+        projectModal.style.display = "none";
+        aboutModal.style.display = "none";
+        cvModal.style.display = "none";
+    }
+
+    function openProjectModal(data) {
+        closeAllModals();
+        world.pointOfView({ lat: data.lat, lng: data.lng, altitude: 1.5 }, 1500);
+
+        document.getElementById("modalTitle").innerText = data.fullName;
+        const body = document.getElementById("modalBody");
+
+        if (data.externalFile) {
+            body.innerHTML = '<div style="padding:20px; text-align:center;">Loading content...</div>';
+            fetch(data.externalFile).then(res => res.text()).then(html => {
+                body.innerHTML = html;
+                if (document.getElementById("comparisonContainer")) resizeComparisonImage();
+            }).catch(e => body.innerText = "Error loading project details.");
+        } else {
+            body.innerHTML = data.desc;
         }
 
-        // Camera
-        world.pointOfView({ lat: 20, lng: 0, altitude: 2.2 });
-        world.controls().autoRotate = true;
-        world.controls().autoRotateSpeed = 0.6;
-        world.controls().enableZoom = true;
-        document.getElementById('globeViz').addEventListener('mousedown', () => { world.controls().autoRotate = false; });
+        const linkContainer = document.getElementById("modalLinks");
+        linkContainer.innerHTML = ""; 
+        if (data.pdf) linkContainer.innerHTML += `<a href="${data.pdf}" target="_blank" class="btn"> Full Paper </a> `;
+        if (data.github) linkContainer.innerHTML += `<a href="${data.github}" target="_blank" class="btn btn-outline"> Full Report</a>`;
+        projectModal.style.display = "block";
+    }
 
-        // Modals & Project List Logic (Preserved)
-        const projectModal = document.getElementById("projectModal");
-        const aboutModal = document.getElementById("aboutModal");
-        const cvModal = document.getElementById("cvModal");
+    function openAbout() { closeAllModals(); aboutModal.style.display = "block"; toggleSidebar(); }
+    function openCV() { 
+        closeAllModals(); 
+        document.getElementById('cvFrame').src = "CV 2026.pdf"; 
+        document.getElementById('cvDownloadLink').href = "cv.pdf"; 
+        cvModal.style.display = "block"; 
+        toggleSidebar(); 
+    }
+    window.onclick = e => { if (e.target == projectModal || e.target == aboutModal || e.target == cvModal) closeAllModals(); }
 
-        function closeAllModals() {
-            projectModal.style.display = "none";
-            aboutModal.style.display = "none";
-            cvModal.style.display = "none";
-            world.controls().autoRotate = true; 
-        }
+    const listContainer = document.getElementById('project-list-container');
+    myProjects.forEach(p => {
+        if(p.type === 'home') return;
+        const div = document.createElement('div');
+        div.className = 'sidebar-project-link';
+        div.innerHTML = `${p.fullName}`;
+        div.onclick = () => { openProjectModal(p); };
+        listContainer.appendChild(div);
+    });
 
-        function openProjectModal(data) {
-            closeAllModals();
-            world.controls().autoRotate = false;
-            world.pointOfView({ lat: data.lat, lng: data.lng, altitude: 1.5 }, 1500);
-
-            document.getElementById("modalTitle").innerText = data.fullName;
-            const body = document.getElementById("modalBody");
-
-            if (data.externalFile) {
-                body.innerHTML = '<div style="padding:20px; text-align:center;">Loading content...</div>';
-                fetch(data.externalFile).then(res => res.text()).then(html => {
-                    body.innerHTML = html;
-                    if (document.getElementById("comparisonContainer")) resizeComparisonImage();
-                }).catch(e => body.innerText = "Error loading project details.");
-            } else {
-                body.innerHTML = data.desc;
-            }
-
-            const linkContainer = document.getElementById("modalLinks");
-            linkContainer.innerHTML = ""; 
-            if (data.pdf) linkContainer.innerHTML += `<a href="${data.pdf}" target="_blank" class="btn"> Full Paper </a> `;
-            if (data.github) linkContainer.innerHTML += `<a href="${data.github}" target="_blank" class="btn btn-outline"> Full Report</a>`;
-            projectModal.style.display = "block";
-        }
-
-        function openAbout() { closeAllModals(); aboutModal.style.display = "block"; toggleSidebar(); world.controls().autoRotate = false; }
-        function openCV() { 
-            closeAllModals(); 
-            document.getElementById('cvFrame').src = "CV 2026.pdf"; 
-            document.getElementById('cvDownloadLink').href = "cv.pdf"; 
-            cvModal.style.display = "block"; 
-            toggleSidebar(); 
-            world.controls().autoRotate = false; 
-        }
-        window.onclick = e => { if (e.target == projectModal || e.target == aboutModal || e.target == cvModal) closeAllModals(); }
-
-        const listContainer = document.getElementById('project-list-container');
-        myProjects.forEach(p => {
-            if(p.type === 'home') return;
-            const div = document.createElement('div');
-            div.className = 'sidebar-project-link';
-            div.innerHTML = `${p.fullName}`;
-            div.onclick = () => { openProjectModal(p); };
-            listContainer.appendChild(div);
-        });
-
-        // Comparison Slider
-        function moveSlider() {
-            const slider = document.getElementById("slider");
-            const overlay = document.getElementById("imgOverlay");
-            const handle = document.getElementById("sliderHandle");
-            if (slider && overlay && handle) { overlay.style.width = slider.value + "%"; handle.style.left = slider.value + "%"; }
-        }
-        function resizeComparisonImage() {
-            const container = document.getElementById("comparisonContainer");
-            const topImg = document.querySelector("#imgOverlay img");
-            if (container && topImg) topImg.style.width = container.offsetWidth + "px";
-        }
-        window.addEventListener('resize', resizeComparisonImage);
-    </script>
+    // Comparison Slider
+    function moveSlider() {
+        const slider = document.getElementById("slider");
+        const overlay = document.getElementById("imgOverlay");
+        const handle = document.getElementById("sliderHandle");
+        if (slider && overlay && handle) { overlay.style.width = slider.value + "%"; handle.style.left = slider.value + "%"; }
+    }
+    function resizeComparisonImage() {
+        const container = document.getElementById("comparisonContainer");
+        const topImg = document.querySelector("#imgOverlay img");
+        if (container && topImg) topImg.style.width = container.offsetWidth + "px";
+    }
+    window.addEventListener('resize', resizeComparisonImage);
+</script>
 </body>
 </html>
