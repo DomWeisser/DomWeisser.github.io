@@ -1,0 +1,296 @@
+<style>
+    /* --- EXISTING STYLES --- */
+    .modal-section-title { color: #00ffcc; font-size: 1.2rem; margin-top: 25px; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+    .modal-subsection-title { color: #5EEAD4; font-size: 0.9rem; margin-top: 15px; margin-bottom: 8px; font-weight: bold; }
+    p, li { font-size: 0.85rem; line-height: 1.6; color: #ddd; }
+    strong { color: #fff; }
+
+    /* --- NEW IMAGE STYLES --- */
+    .img-row {
+        display: flex;
+        gap: 15px;
+        margin: 20px 0;
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+    .img-col {
+        flex: 1;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+    }
+    .project-img {
+        width: 100%;
+        height: auto;
+        border-radius: 4px;
+        border: 1px solid #444;
+        transition: transform 0.2s;
+    }
+    .project-img:hover {
+        transform: scale(1.02);
+        border-color: #00ffcc;
+    }
+    .img-caption {
+        font-size: 0.75rem;
+        color: #888;
+        margin-top: 5px;
+        font-style: italic;
+    }
+
+    /* --- SLIDER STYLES (UPDATED FOR MOVING LABELS) --- */
+    .comparison-container {
+        position: relative;
+        width: 100%;
+        max-width: 800px;
+        margin: 20px auto;
+        overflow: hidden; 
+        border-radius: 4px;
+        border: 1px solid #444;
+        line-height: 0;
+        user-select: none; /* Stops text highlighting while dragging */
+    }
+
+    .comp-img {
+        width: 100%;
+        height: auto;
+        display: block;
+    }
+
+    /* The Overlay (Left Image) */
+    .img-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 50%; 
+        height: 100%;
+        overflow: hidden; 
+        z-index: 2;
+    }
+
+    .img-overlay img {
+        width: 100%; 
+        max-width: none; 
+        height: auto;
+    }
+
+    /* --- THE MOVING HANDLE (Line + Arrows + Labels) --- */
+    .slider-handle {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%; /* Starts at 50% */
+        width: 2px; /* The cyan line width */
+        background: #00ffcc;
+        z-index: 20; 
+        pointer-events: none; /* Let clicks pass through to the slider */
+    }
+
+    /* The Circle Button with Arrows */
+    .slider-handle::after {
+        content: '↔';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%); /* Centers the circle */
+        width: 32px;
+        height: 32px;
+        background-color: #00ffcc;
+        color: #000;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 18px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+
+    /* --- THE MOVING LABELS --- */
+    .handle-label {
+        position: absolute;
+        top: 15px; /* Distance from top */
+        color: #fff;
+        font-weight: bold;
+        font-size: 0.9rem;
+        white-space: nowrap; 
+        text-shadow: 0 2px 4px rgba(0,0,0,1); /* Shadow so we don't need black box */
+    }
+
+    /* Wet label sits to the LEFT of the line */
+    .label-wet {
+        right: 20px; 
+    }
+
+    /* Dry label sits to the RIGHT of the line */
+    .label-dry {
+        left: 20px; 
+    }
+
+    /* The invisible slider input */
+    .slider-input {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: ew-resize;
+        z-index: 30; 
+        margin: 0;
+    }
+</style>
+
+<h3 class="modal-section-title">Project Overview</h3>
+<p>
+    During my time at Remote Sensing Solutions, I developed an operational scenario-based forecasting system for agricultural drought monitoring as part of the EOAgri 
+    Twin project for ESA's Destination Earth initiative. The system provides 1-6 month ahead monthly forecasts of key agricultural indicators: max Land Surface
+    Temperature (LST), max Normalised Difference Vegetation Index (NDVI), and median Normalised Difference Infrared Index (NDII) at a 0.01° spatial resolution across
+    Italy and Kenya. These forecasts then serve as direct inputs into the downstream operational drought forecasting model. The key innovation of this study
+    lies in generating forecasts per month under multiple future precipitation scenarios, providing predictions that explicitly account for climatic uncertainty. 
+</p>
+
+<h3 class="modal-section-title">Core Innovation: Scenario-Based Forecasting</h3>
+
+<p>This scenario-based approach provides five distinct forecasts per indicator and horizon:</p>
+<ul>
+    <li><strong>Extreme Dry:</strong> Representing if there were to be severe drought conditions </li>
+    <li><strong>Dry:</strong> If there were to be below-average precipitation </li>
+    <li><strong>Baseline:</strong> Forecast based on the average precipitation</li>
+    <li><strong>Wet:</strong> If there were to be above-average precipitation </li>
+    <li><strong>Extreme Wet:</strong> Representing if there were to be extreme high precipitation conditions </li>
+</ul>
+<p>
+    The "what-if" capability allows agircultural decision-makes to assess a range of potential outcomes rather than relying on a single deterministic prediction.
+    It is designed to answer critical questions such as:
+</p>
+<ul>
+    <li>What will the vegetation health of our land look like in 3 months if we experience drought conditions?</li>
+    <li>How will crop stress evolve under extreme wet conditions?</li>
+    <li>What is the range of possible drought probabilities given precipitation uncertainty in our location?</li>
+</ul>
+
+<div class="img-row">
+    <div class="img-col">
+        <img src="kenya_forecast1.png" 
+             alt="Extreme Dry Scenario" 
+             class="comp-img">
+        <div class="img-caption">Figure 1: NDII forecast for October 2022 under extreme dry scenario</div>
+    </div>
+    <div class="img-col">
+        <img src="kenya_forecast2.png" 
+             alt="Extreme Wet Scenario" 
+             class="comp-img">
+        <div class="img-caption">Figure 2: NDII forecast for October 2022 under extreme wet scenario</div>
+    </div>
+</div>
+
+<h3 class="modal-section-title">Methodology</h3>
+
+<h4 class="modal-subsection-title">Model Architecture</h4>
+<p>
+    The forecasting system employs an ensemble modelling framework combining XGBoost and ElasticNet regression, 
+    with optimal weights determined individually for each:
+</p>
+<ul>
+    <li>Geographic region (Italy, Kenya)</li>
+    <li>Target variable (LST, NDVI, NDII)</li>
+    <li>Forecast horizon (1-6 months ahead)</li>
+</ul>
+<p>
+    This results in 18 specialised ensemble models per country, each tuned to the specific spatiotemporal characteristics of its prediction task.
+</p>
+
+<h4 class="modal-subsection-title">Input Features</h4>
+<p> For each pixel, the input feature space combines historical observations with a projected future precipitation value:</p>
+<ul>
+    <li>
+        <strong> Historical Observations (Capturing trend & seasonality):</strong>
+        <ul style="margin-top:5px; color: #ccc;">
+            <li>Lagged variables (1, 2, 3, 6, 12 months): Target variable and monthly precipitation totals.</li>
+            <li>Statistical trends: 3, 6, 12-month rolling means and standard deviations.</li>
+        </ul>
+    </li>
+    <li>
+        <strong> Precipitation Forecast - Horizon Dependent (Driving the "What-If" logic):</strong>
+        <ul style="margin-top:5px; color: #ccc;">
+            <li>Baseline: The historical average monthly rainfall per location (2001-2022) aggregated for the prediction horizon.</li>
+            <li>Scenarios: This baseline is adjusted per scenario using <strong>Regional Gamma-derived Multipliers.</strong>.</li>
+        </ul>
+    </li>
+</ul>
+
+<h4 class="modal-subsection-title">Spatially-Adaptive Scenario Generation</h4>
+<p>
+    Defining what constitutes "extreme wet" or "extreme dry" varies drastically by location. For example, NE Kenya is naturally arid with 
+    consistent rainfall per month across years, while SW Kenya is tropical with high precipitation variability per month. Applying a simple "Mean minus
+    20%" rule nationwide would fail to capture these physical differences.
+</p>
+
+<p><strong>Solution: The Regional Multiplier Approach</strong></p>
+<p>
+    To solve this, we developed a method that translates statistical probabilities (e.g., "a 1-in-20-year drought") 
+    into standardised "Sigma" multipliers that adapt to local climate physics:
+</p>
+
+<ol>
+    <li>
+        <strong>Gamma Distribution Modeling:</strong> 
+        Precipitation data is non-normal. For every training data-point, we fitted Gamma distributions 
+        to the historical monthly rainfall (2001-2022). This allowed us to accurately quantify the rainfall of specific percentiles 
+        (e.g., calculating exactly how many mm constitutes the "5th percentile" for this specific location and month) .
+    </li>
+    <li>
+        <strong>Standardisation:</strong> 
+        We converted these Gamma-derived percentiles into standardised multipliers (Z-scores) relative to the local precipitation mean. 
+        <br>
+        <em style="color: #999;">(e.g., The 5th percentile is -1.8 std below the mean for this specific location and month)</em>
+    </li>
+    <li>
+        <strong>Regional Aggregation:</strong> 
+        To filter out noise from individual data-points, these multipliers were averaged spatially within 1° × 1° grid cells. 
+        This creates a robust "Regional Multiplier" that defines the shape of extreme rainfall scenarios for that specific area.
+    </li>
+    <li>
+        <strong>Operational Application:</strong> 
+        When generating scenario forecasts, we reconstructed the forecasted precipitation value by applying the regional multiplier to the pixel's specific 
+        precipitation mean:
+    </li>
+</ol>
+
+<p style="background: rgba(255,255,255,0.05); padding: 15px; border-left: 3px solid #4CAF50; font-family: monospace; font-size: 0.9rem; margin: 15px 0 15px 10px;">
+    Precipitation_Scenario = Mean + (Std_Dev × Regional_Multiplier)
+</p>
+
+<p>
+    <strong>Why this matters:</strong> This ensures physical realism. A multiplier of <code>1.25 std</code> (Extreme wet) might translate to the 95th percentile
+    in the arid NE but instead <code> 2.05 std</code> might represent the 95th percentile in the SW, therefore correctly identifying "extreme" conditions relative
+    to the norm.
+</p>
+
+
+
+
+<h3 class="modal-section-title">Model Performance</h3>
+<p><strong>Example: NDII (1-month ahead, Kenya):</strong></p>
+<ul>
+    <li><strong>Test R²:</strong> 0.82</li>
+    <li><strong>Test MAE:</strong> 0.0384</li>
+    <li><strong>Model Weighting:</strong> 0.39 XGBoost, 0.61 ElasticNet</li>
+    <li><strong>Precipitation Forecast Feature Importance:</strong> 6/25</li>
+
+</ul>
+
+<div class="img-row">
+    <div class="img-col">
+        <img src="kenya_metrics.png" alt="NDII Metrics" class="project-img">
+        <div class="img-caption">Figure 3: NDII Metrics - 1 Month ahead horizon</div>
+    </div>
+    <div class="img-col">
+        <img src="kenyaplot.png" alt="NDVI Forecast Map 1" class="project-img">
+        <div class="img-caption">Figure 4: NDII Forecasts Jan 2021 - June 2023</div>
+    </div>
+</div>
+
+<h3 class="modal-section-title">Operational Deployment</h3>
+<p>
+    The system generates monthly operational forecasts for integration into the EOAgri Twin platform, available to view here: (will be available soon)
